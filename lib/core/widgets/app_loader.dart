@@ -1,0 +1,1 @@
+// This file defines a common loading widget.

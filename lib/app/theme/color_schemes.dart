@@ -1,0 +1,1 @@
+// This file defines color schemes used in the application.

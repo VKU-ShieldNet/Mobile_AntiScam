@@ -1,0 +1,1 @@
+// This file defines the OnboardingStep entity.

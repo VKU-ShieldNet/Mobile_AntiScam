@@ -1,0 +1,1 @@
+// This file handles authentication for API requests.
