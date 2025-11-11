@@ -1,0 +1,173 @@
+{
+  "appTitle": "AntiScam",
+  "onboarding": {
+    "stepCounter": "Step {current} of {total}",
+    "welcome": {
+      "title": "Welcome to\nAntiScam",
+      "subtitle": "Protect yourself from online scams",
+      "description": "AI-powered app to detect online scams, protect you from sophisticated fraud tactics.",
+      "features": {
+        "ai": {
+          "title": "Fast Detection",
+          "description": "Instant analysis with AI technology"
+        },
+        "alerts": {
+          "title": "Instant Alerts",
+          "description": "Receive immediate notifications for potential threats"
+        },
+        "security": {
+          "title": "Maximum Security",
+          "description": "Advanced protection against all types of scams"
+        }
+      },
+      "startButton": "Get Started"
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "steps": {
+        "1": {
+          "title": "Tap to scan",
+          "description": "Tap the scan button when suspicious"
+        },
+        "2": {
+          "title": "Screenshot",
+          "description": "App automatically captures content"
+        },
+        "3": {
+          "title": "AI analysis",
+          "description": "Gemini AI checks immediately"
+        },
+        "4": {
+          "title": "Get results",
+          "description": "Alert if scam is detected"
+        }
+      }
+    },
+    "security": {
+      "title": "Absolute Security",
+      "subtitle": "Your data is 100% processed on device",
+      "features": {
+        "noData": {
+          "title": "No Data Collection",
+          "description": "App doesn't send any information to servers"
+        },
+        "localProcessing": {
+          "title": "Local Processing", 
+          "description": "SMS and call analysis directly on your device"
+        },
+        "privacy": {
+          "title": "100% Private",
+          "description": "No sharing with any third parties"
+        }
+      }
+    },
+    "features": {
+      "title": "Protective Features",
+      "description": "Here's what we have for you",
+      "qrCode": {
+        "title": "Scan QR Code",
+        "description": "Check if links in QR codes are safe"
+      },
+      "appProtection": {
+        "title": "App Protection",
+        "description": "Track scam popups in applications"
+      },
+      "linkCheck": {
+        "title": "Check Links",
+        "description": "Analyze suspicious links before accessing"
+      },
+      "report": {
+        "title": "Report",
+        "description": "Send scam page info to help the community"
+      }
+    },
+    "selectApps": {
+      "title": "Select apps to monitor",
+      "description": "Choose which messaging apps you want AntiScam to help protect",
+      "selectApps": "Select apps",
+      "selectAll": "Select all",
+      "selected": "{count} apps selected",
+      "info": "You can change these settings later in the app"
+    },
+    "permissions": {
+      "title": "Grant\npermissions",
+      "description": "App needs some permissions to work optimally:",
+      "features": {
+        "screenshot": {
+          "title": "Screenshot",
+          "description": "To capture content for scanning and analysis"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "To receive timely scam alerts"
+        },
+        "overlay": {
+          "title": "Floating button",
+          "description": "To scan easily from any app (optional)"
+        }
+      },
+      "button": "Grant permissions",
+      "retry": "Try again",
+      "granted": "Permissions granted"
+    },
+    "demo": {
+      "title": "Try demo scan",
+      "description": "Try the scanning feature with simulated results to understand how the app works.",
+      "button": "Try demo scan"
+    },
+    "ready": {
+      "title": "You're Ready!",
+      "subtitle": "Start protecting yourself now",
+      "description": "You're ready to use AntiScam to protect yourself from scams.",
+      "privacy": "AntiScam does not store any personal information",
+      "features": {
+        "scan": {
+          "title": "Scan when suspicious",
+          "description": "Tap scan button whenever you feel something's off"
+        },
+        "protection": {
+          "title": "App Protection",
+          "description": "Monitor popups in protected applications"
+        },
+        "report": {
+          "title": "Report scams",
+          "description": "Help the community by reporting scams"
+        }
+      },
+      "startButton": "Start Protecting Me"
+    },
+    "dialog": {
+      "skip": {
+        "title": "Skip tutorial?",
+        "message": "You can review this tutorial in Settings.",
+        "cancel": "Cancel",
+        "confirm": "Skip"
+      },
+      "demoResult": {
+        "title": "Safe",
+        "message": "No scam signs detected in this content.",
+        "details": {
+          "noLinks": "No suspicious links",
+          "normalLanguage": "Normal language",
+          "noMoneyRequest": "No money requests"
+        },
+        "continue": "Continue"
+      }
+    }
+  },
+  "button": {
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "getStarted": "Start protecting me",
+    "skip": "Skip"
+  },
+  "snackbar": {
+    "permissionsGranted": "All permissions granted!",
+    "permissionsIncomplete": "Please grant all permissions to continue",
+    "error": "Error: {error}"
+  },
+  "home": {
+    "title": "Home"
+  }
+}
