@@ -45,3 +45,78 @@ app.*.map.json
 /android/app/release
 
 .env
+
+# -----------------------------
+# Senior-level additions
+# -----------------------------
+# Keep local configuration and secrets off the repo
+android/local.properties
+key.properties
+*.jks
+*.keystore
+
+# Firebase / Google services local keys (usually safe to keep but often moved to CI)
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Flutter plugins + generated files
+/.flutter-plugins
+/.flutter-plugins-dependencies
+/.packages
+/GeneratedPluginRegistrant.java
+/GeneratedPluginRegistrant.m
+
+# Xcode
+ios/Runner.xcodeproj/xcshareddata/
+ios/Runner.xcodeproj/project.xcworkspace/
+ios/Runner.xcworkspace/
+ios/Flutter/Generated.xcconfig
+.ios/Flutter/Flutter.framework
+Podfile.lock
+Pods/
+
+# Android
+/android/.gradle/
+/android/.idea/
+/android/local.properties
+/android/app/*.keystore
+
+# CI, caches and editor configs
+.circleci/
+.github/
+/.idea/
+.vscode/
+/*.keystore
+
+# Native build artifacts
+/build/
+/android/**/build/
+/ios/**/build/
+
+# macOS
+.DS_Store
+*.moved-aside
+*.xcuserstate
+
+# Log files
+*.log
+
+# LFS and large asset management
+# Add `*.png` to LFS config if you want to track large images instead of ignoring them
+
+# Keep local environment variables out
+.env*
+secrets.json
+
+# Other recommended ignores
+pubspec.lock
+# Note: For apps we generally commit pubspec.lock for reproducibility. Remove the line above if you want to keep it in VCS.
+
+# Local caches
+.dart_tool/
+.pub/
+.pub-cache/
+
+# Optional: keep these files out of VCS on developer machines only
+# Add to .git/info/exclude or global gitignore
+# local-override.yaml

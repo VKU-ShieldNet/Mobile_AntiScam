@@ -1,0 +1,380 @@
+{
+  "appTitle": "AntiScam",
+  "onboarding": {
+    "stepCounter": "Step {current} of {total}",
+    "welcome": {
+      "title": "Welcome to\nAntiScam",
+      "subtitle": "Protect yourself from online scams",
+      "description": "AI-powered app to detect online scams, protect you from sophisticated fraud tactics.",
+      "features": {
+        "ai": {
+          "title": "Fast Detection",
+          "description": "Instant analysis with AI technology"
+        },
+        "alerts": {
+          "title": "Instant Alerts",
+          "description": "Receive immediate notifications for potential threats"
+        },
+        "security": {
+          "title": "Maximum Security",
+          "description": "Advanced protection against all types of scams"
+        }
+      },
+      "startButton": "Get Started"
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "steps": {
+        "1": {
+          "title": "Tap to scan",
+          "description": "Tap the scan button when suspicious"
+        },
+        "2": {
+          "title": "Screenshot",
+          "description": "App automatically captures content"
+        },
+        "3": {
+          "title": "AI analysis",
+          "description": "Gemini AI checks immediately"
+        },
+        "4": {
+          "title": "Get results",
+          "description": "Alert if scam is detected"
+        }
+      }
+    },
+    "security": {
+      "title": "Absolute Security",
+      "subtitle": "Your data is 100% processed on device",
+      "features": {
+        "noData": {
+          "title": "No Data Collection",
+          "description": "App doesn't send any information to servers"
+        },
+        "localProcessing": {
+          "title": "Local Processing", 
+          "description": "SMS and call analysis directly on your device"
+        },
+        "privacy": {
+          "title": "100% Private",
+          "description": "No sharing with any third parties"
+        }
+      }
+    },
+    "features": {
+      "title": "Protective Features",
+      "description": "Here's what we have for you",
+      "qrCode": {
+        "title": "Scan QR Code",
+        "description": "Check if links in QR codes are safe"
+      },
+      "appProtection": {
+        "title": "App Protection",
+        "description": "Track scam popups in applications"
+      },
+      "linkCheck": {
+        "title": "Check Links",
+        "description": "Analyze suspicious links before accessing"
+      },
+      "report": {
+        "title": "Report",
+        "description": "Send scam page info to help the community"
+      }
+    },
+    "selectApps": {
+      "title": "Select apps to monitor",
+      "description": "Choose which messaging apps you want AntiScam to help protect",
+      "selectApps": "Select apps",
+      "selectAll": "Select all",
+      "selected": "{count} apps selected",
+      "info": "You can change these settings later in the app"
+    },
+    "appSelection": {
+      "title": "Select Apps to Protect",
+      "subtitle": "Choose which apps you want to monitor for scam popups",
+      "searchPlaceholder": "Search apps...",
+      "protectingCount": "Protecting {count} apps",
+      "noAppsFound": "No apps found",
+      "allApps": "All Apps",
+      "systemApps": "System Apps",
+      "userApps": "User Apps"
+    },
+    "permissions": {
+      "title": "Grant\npermissions",
+      "description": "App needs some permissions to work optimally:",
+      "features": {
+        "screenshot": {
+          "title": "Screenshot",
+          "description": "To capture content for scanning and analysis"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "To receive timely scam alerts"
+        },
+        "overlay": {
+          "title": "Floating button",
+          "description": "To scan easily from any app (optional)"
+        }
+      },
+      "button": "Grant permissions",
+      "retry": "Try again",
+      "granted": "Permissions granted"
+    },
+    "demo": {
+      "title": "Try demo scan",
+      "description": "Try the scanning feature with simulated results to understand how the app works.",
+      "button": "Try demo scan"
+    },
+    "ready": {
+      "title": "You're Ready!",
+      "subtitle": "Start protecting yourself now",
+      "description": "You're ready to use AntiScam to protect yourself from scams.",
+      "privacy": "AntiScam does not store any personal information",
+      "features": {
+        "scan": {
+          "title": "Scan when suspicious",
+          "description": "Tap scan button whenever you feel something's off"
+        },
+        "protection": {
+          "title": "App Protection",
+          "description": "Monitor popups in protected applications"
+        },
+        "report": {
+          "title": "Report scams",
+          "description": "Help the community by reporting scams"
+        }
+      },
+      "startButton": "Start Protecting Me"
+    },
+    "done": {
+      "title": "All set!",
+      "description": "You have successfully completed the setup. AntiScam is now protecting you.",
+      "features": {
+        "scan": {
+          "title": "Scan",
+          "description": "Tap the scan button whenever you feel something's off"
+        },
+        "report": {
+          "title": "Report",
+          "description": "Help the community by sharing scam pages"
+        },
+        "links": {
+          "title": "Check links",
+          "description": "Analyze links found in messages and QR codes"
+        }
+      }
+    },
+    "dialog": {
+      "skip": {
+        "title": "Skip tutorial?",
+        "message": "You can review this tutorial in Settings.",
+        "cancel": "Cancel",
+        "confirm": "Skip"
+      },
+      "demoResult": {
+        "title": "Safe",
+        "message": "No scam signs detected in this content.",
+        "details": {
+          "noLinks": "No suspicious links",
+          "normalLanguage": "Normal language",
+          "noMoneyRequest": "No money requests"
+        },
+        "continue": "Continue"
+      }
+    }
+  },
+  "button": {
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue",
+    "getStarted": "Start protecting me",
+    "skip": "Skip"
+  },
+  "snackbar": {
+    "permissionsGranted": "All permissions granted!",
+    "permissionsIncomplete": "Please grant all permissions to continue",
+    "error": "Error: {error}"
+  },
+  "home": {
+    "title": "Home",
+    "greeting": "Hi!",
+    "subtitle": "Protect yourself from scams",
+    "developing": "Feature in development",
+    "quickCheck": {
+      "title": "Quick Check",
+      "image": {
+        "title": "Image Scan",
+        "description": "Scan images for scam indicators",
+        "bottomSheet": {
+          "title": "Check image",
+          "subtitle": "Select or take a photo to scan",
+          "gallery": "From gallery",
+          "camera": "Use camera"
+        }
+      },
+      "link": {
+        "title": "Link Check",
+        "description": "Analyze suspicious links",
+        "bottomSheet": {
+          "title": "Check link",
+          "placeholder": "Paste the suspicious link here"
+        }
+      },
+      "message": {
+        "title": "Message Scan",
+        "description": "Scan messages for potential scams",
+        "bottomSheet": {
+          "title": "Check message",
+          "placeholder": "Paste message text to check"
+        }
+      }
+    },
+    "advanced": {
+      "title": "Advanced",
+      "card": {
+        "title": "Advanced settings",
+        "description": "Manage permissions and background protection"
+      },
+      "selectApps": "Choose Protected Apps",
+      "status": {
+        "ready": "Ready",
+        "setup": "Setup"
+      },
+      "setup": {
+        "intro": {
+          "title": "Advanced setup",
+          "subtitle": "Enable background protections and quick scanning",
+          "privacyPoints": {
+            "noDataCollection": {
+              "title": "No data collection",
+              "description": "We only process data locally on your device"
+            },
+            "privacy": {
+              "title": "Privacy-first",
+              "description": "Nothing is sent to external servers"
+            },
+            "security": {
+              "title": "Secure",
+              "description": "Protection and detection run on device"
+            }
+          },
+          "continue": "Continue"
+        },
+        "permission": {
+          "title": "Overlay & Accessibility",
+          "subtitle": "These permissions help the app detect messages and show a quick bubble",
+          "steps": {
+            "step1": "Grant overlay permission",
+            "step2": "Enable accessibility service",
+            "step3": "Select the apps to monitor"
+          },
+          "grant": "Grant permission",
+          "skip": "Skip",
+          "granted": "Permission granted",
+          "error": "Error requesting permission"
+        }
+      }
+    },
+    "status": {
+      "ready": "Ready",
+      "setup": "Setup"
+    },
+    "resetDialog": {
+      "title": "Reset tutorial?",
+      "content": "This will reset onboarding and settings.",
+      "cancel": "Cancel",
+      "reset": "Reset"
+    }
+  },
+  "bubble": {
+    "section": {
+      "title": "Bubble"
+    },
+    "quickAccess": {
+      "title": "Floating bubble",
+      "description": "Quick access to scanning and controls"
+    },
+    "setup": {
+      "intro": {
+        "title": "Quick Scan",
+        "subtitle": "Scan from any app with a floating button",
+        "note": "The bubble will appear in protected apps for instant scanning access.",
+        "privacy": {
+          "secure": {
+            "title": "100% Secure",
+            "description": "Safe to use, no malicious code"
+          },
+          "noData": {
+            "title": "No Data Collection",
+            "description": "Everything stays on your device"
+          },
+          "privacy": {
+            "title": "Privacy First",
+            "description": "Nothing leaves your phone"
+          }
+        }
+      },
+      "permission": {
+        "title": "Setup",
+        "subtitle": "Grant permissions to enable quick scanning",
+        "overlay": {
+          "title": "Display overlay",
+          "description": "Show floating button on screen"
+        },
+        "accessibility": {
+          "title": "Accessibility",
+          "description": "Detect content in apps",
+          "dialog": {
+            "title": "Enable Service",
+            "message": "Find AntiScam in accessibility settings and enable it. Tap Done when finished."
+          }
+        },
+        "selectApps": {
+          "title": "Select Apps to Monitor",
+          "description": "Choose which apps the bubble will appear in"
+        },
+        "grantButton": "Enable",
+        "selectButton": "Select Apps",
+        "allGranted": "All permissions granted! You can now select apps to monitor."
+      }
+    },
+    "control": {
+      "title": "Bubble Control",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "description": {
+        "active": "Security bubble is enabled and will show in protected apps.",
+        "inactive": "Bubble is off. Enable it to get quick scanning in apps."
+      },
+      "button": {
+        "start": "Start",
+        "stop": "Stop"
+      },
+      "howItWorks": {
+        "title": "How it works",
+        "tap": {
+          "title": "Tap to scan",
+          "description": "Tap the bubble to start a quick scan"
+        },
+        "move": {
+          "title": "Drag to move",
+          "description": "Move the bubble anywhere on screen"
+        },
+        "scan": {
+          "title": "Quick scanning",
+          "description": "Bubble opens a simple scan popup"
+        }
+      },
+      "privacy": {
+        "note": "We only scan app names and the content locally; no data is collected."
+      },
+      "toast": {
+        "started": "Bubble started",
+        "stopped": "Bubble stopped",
+        "error": "Something went wrong with the bubble"
+      }
+    }
+  }
+}

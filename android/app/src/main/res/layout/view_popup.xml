@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/popup_background"
+    android:padding="24dp"
+    android:elevation="12dp">
+
+    <!-- Close button -->
+    <ImageView
+        android:id="@+id/btn_close"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"
+        android:padding="6dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Close" />
+
+    <!-- Content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/btn_close"
+        android:layout_marginTop="8dp">
+
+        <!-- Icon -->
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_shield"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/popup_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Security Scan"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#1A1A1A"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Message -->
+        <TextView
+            android:id="@+id/popup_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tap below to scan this screen for potential scam indicators"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textColor="#666666"
+                android:background="@android:color/transparent"
+                android:paddingVertical="12dp"
+                android:layout_marginEnd="8dp"
+                style="?android:attr/borderlessButtonStyle" />
+
+            <Button
+                android:id="@+id/btn_view_details"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Scan Now"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/button_primary"
+                android:paddingVertical="12dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

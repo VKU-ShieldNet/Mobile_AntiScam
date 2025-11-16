@@ -1,0 +1,380 @@
+{
+  "appTitle": "AntiScam",
+  "onboarding": {
+    "stepCounter": "Bước {current} trên {total}",
+    "welcome": {
+      "title": "Chào mừng đến\nAntiScam",
+      "subtitle": "Bảo vệ bạn khỏi lừa đảo trực tuyến",
+      "description": "Ứng dụng AI giúp phát hiện lừa đảo trực tuyến, bảo vệ bạn khỏi các chiêu trò lừa đảo tinh vi.",
+      "features": {
+        "ai": {
+          "title": "Phát hiện nhanh chóng",
+          "description": "Phân tích tức thì với công nghệ AI"
+        },
+        "alerts": {
+          "title": "Cảnh báo tức thì",
+          "description": "Nhận thông báo ngay lập tức cho các mối đe dọa tiềm ẩn"
+        },
+        "security": {
+          "title": "Bảo mật tuyệt đối",
+          "description": "Bảo vệ nâng cao chống lại mọi loại lừa đảo"
+        }
+      },
+      "startButton": "Bắt đầu"
+    },
+    "howItWorks": {
+      "title": "Cách hoạt động",
+      "steps": {
+        "1": {
+          "title": "Bấm quét",
+          "description": "Bấm nút quét khi nghi ngờ"
+        },
+        "2": {
+          "title": "Chụp màn hình",
+          "description": "App tự động chụp nội dung"
+        },
+        "3": {
+          "title": "AI phân tích",
+          "description": "Gemini AI kiểm tra ngay lập tức"
+        },
+        "4": {
+          "title": "Nhận kết quả",
+          "description": "Cảnh báo nếu phát hiện lừa đảo"
+        }
+      }
+    },
+    "security": {
+      "title": "Bảo mật tuyệt đối",
+      "subtitle": "Dữ liệu được xử lý 100% trên thiết bị",
+      "features": {
+        "noData": {
+          "title": "Không thu thập dữ liệu",
+          "description": "Ứng dụng không gửi bất kỳ thông tin nào về server"
+        },
+        "localProcessing": {
+          "title": "Xử lý cục bộ",
+          "description": "Phân tích SMS và cuộc gọi trực tiếp trên thiết bị"
+        },
+        "privacy": {
+          "title": "Riêng tư 100%",
+          "description": "Không chia sẻ với bất kỳ bên thứ ba nào"
+        }
+      }
+    },
+    "features": {
+      "title": "Tính năng bảo vệ",
+      "description": "Chúng tôi có gì cho bạn",
+      "qrCode": {
+        "title": "Quét mã QR",
+        "description": "Kiểm tra link trong mã QR có an toàn không"
+      },
+      "appProtection": {
+        "title": "Bảo vệ ứng dụng",
+        "description": "Theo dõi popup lừa đảo trong ứng dụng"
+      },
+      "linkCheck": {
+        "title": "Kiểm tra link",
+        "description": "Phân tích link nghi ngờ trước khi truy cập"
+      },
+      "report": {
+        "title": "Báo cáo",
+        "description": "Gửi thông tin trang lừa đảo giúp cộng đồng"
+      }
+    },
+    "selectApps": {
+      "title": "Chọn ứng dụng giám sát",
+      "description": "Chọn các ứng dụng nhắn tin bạn muốn AntiScam giúp bảo vệ",
+      "selectApps": "Chọn ứng dụng",
+      "selectAll": "Chọn tất cả",
+      "selected": "Đã chọn {count} ứng dụng",
+      "info": "Bạn có thể thay đổi cài đặt này sau trong ứng dụng"
+    },
+    "appSelection": {
+      "title": "Chọn ứng dụng bảo vệ",
+      "subtitle": "Chọn các ứng dụng bạn muốn giám sát popup lừa đảo",
+      "searchPlaceholder": "Tìm kiếm ứng dụng...",
+      "protectingCount": "Đang bảo vệ {count} ứng dụng",
+      "noAppsFound": "Không tìm thấy ứng dụng",
+      "allApps": "Tất cả ứng dụng",
+      "systemApps": "Ứng dụng hệ thống",
+      "userApps": "Ứng dụng người dùng"
+    },
+    "permissions": {
+      "title": "Cấp quyền cần thiết",
+      "description": "App cần một số quyền để hoạt động tốt nhất:",
+      "features": {
+        "screenshot": {
+          "title": "Chụp màn hình",
+          "description": "Để chụp nội dung cần quét và phân tích"
+        },
+        "notifications": {
+          "title": "Thông báo",
+          "description": "Để nhận cảnh báo lừa đảo kịp thời"
+        },
+        "overlay": {
+          "title": "Hiển thị nút nổi",
+          "description": "Để quét dễ dàng từ mọi ứng dụng (tùy chọn)"
+        }
+      },
+      "button": "Cấp quyền",
+      "retry": "Thử lại",
+      "granted": "Đã cấp quyền"
+    },
+    "demo": {
+      "title": "Thử quét demo",
+      "description": "Hãy thử tính năng quét với kết quả mô phỏng để hiểu cách app hoạt động.",
+      "button": "Thử quét demo"
+    },
+    "ready": {
+      "title": "Sẵn sàng!",
+      "subtitle": "Bắt đầu bảo vệ bản thân ngay",
+      "description": "Bạn đã sẵn sàng sử dụng AntiScam để bảo vệ mình khỏi lừa đảo.",
+      "privacy": "AntiScam không lưu trữ bất kỳ thông tin cá nhân nào của bạn",
+      "features": {
+        "scan": {
+          "title": "Quét khi nghi ngờ",
+          "description": "Bấm nút quét bất kỳ khi nào cảm thấy không ổn"
+        },
+        "protection": {
+          "title": "Bảo vệ ứng dụng",
+          "description": "Giám sát popup trong các ứng dụng được bảo vệ"
+        },
+        "report": {
+          "title": "Báo cáo lừa đảo",
+          "description": "Giúp cộng đồng bằng cách báo cáo lừa đảo"
+        }
+      },
+      "startButton": "Bắt đầu bảo vệ tôi"
+    },
+    "done": {
+      "title": "Hoàn tất!",
+      "description": "Bạn đã hoàn tất cài đặt. AntiScam đang bảo vệ bạn.",
+      "features": {
+        "scan": {
+          "title": "Quét",
+          "description": "Bấm nút quét bất kỳ khi nào cảm thấy không ổn"
+        },
+        "report": {
+          "title": "Báo cáo",
+          "description": "Giúp cộng đồng bằng cách báo cáo các trang lừa đảo"
+        },
+        "links": {
+          "title": "Kiểm tra link",
+          "description": "Phân tích link trong tin nhắn và mã QR"
+        }
+      }
+    },
+    "dialog": {
+      "skip": {
+        "title": "Bỏ qua hướng dẫn?",
+        "message": "Bạn có thể xem lại hướng dẫn này trong Cài đặt.",
+        "cancel": "Hủy",
+        "confirm": "Bỏ qua"
+      },
+      "demoResult": {
+        "title": "An toàn",
+        "message": "Không phát hiện dấu hiệu lừa đảo trong nội dung này.",
+        "details": {
+          "noLinks": "Không có link lạ",
+          "normalLanguage": "Ngôn ngữ bình thường",
+          "noMoneyRequest": "Không yêu cầu chuyển tiền"
+        },
+        "continue": "Tiếp tục"
+      }
+    }
+  },
+  "button": {
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "continue": "Tiếp tục",
+    "getStarted": "Bắt đầu bảo vệ tôi",
+    "skip": "Bỏ qua"
+  },
+  "snackbar": {
+    "permissionsGranted": "Đã cấp tất cả quyền!",
+    "permissionsIncomplete": "Vui lòng cấp đủ quyền để tiếp tục",
+    "error": "Lỗi: {error}"
+  },
+  "home": {
+    "title": "Trang chủ",
+    "greeting": "Xin chào!",
+    "subtitle": "Bảo vệ bạn khỏi lừa đảo",
+    "developing": "Tính năng đang phát triển",
+    "quickCheck": {
+      "title": "Quét nhanh",
+      "image": {
+        "title": "Quét hình ảnh",
+        "description": "Quét ảnh để phát hiện dấu hiệu lừa đảo",
+        "bottomSheet": {
+          "title": "Kiểm tra ảnh",
+          "subtitle": "Chọn hoặc chụp ảnh để quét",
+          "gallery": "Từ thư viện",
+          "camera": "Chụp ảnh"
+        }
+      },
+      "link": {
+        "title": "Kiểm tra link",
+        "description": "Phân tích link nghi ngờ",
+        "bottomSheet": {
+          "title": "Kiểm tra link",
+          "placeholder": "Dán link nghi ngờ vào đây"
+        }
+      },
+      "message": {
+        "title": "Quét tin nhắn",
+        "description": "Quét tin nhắn để tìm dấu hiệu lừa đảo",
+        "bottomSheet": {
+          "title": "Kiểm tra tin nhắn",
+          "placeholder": "Dán nội dung tin nhắn vào đây"
+        }
+      }
+    },
+    "advanced": {
+      "title": "Nâng cao",
+      "card": {
+        "title": "Cài đặt nâng cao",
+        "description": "Quản lý quyền và bảo vệ nền"
+      },
+      "selectApps": "Chọn ứng dụng được bảo vệ",
+      "status": {
+        "ready": "Sẵn sàng",
+        "setup": "Cài đặt"
+      },
+      "setup": {
+        "intro": {
+          "title": "Cài đặt nâng cao",
+          "subtitle": "Bật bảo vệ nền và quét nhanh",
+          "privacyPoints": {
+            "noDataCollection": {
+              "title": "Không thu thập dữ liệu",
+              "description": "Chúng tôi chỉ xử lý dữ liệu cục bộ trên thiết bị của bạn"
+            },
+            "privacy": {
+              "title": "Ưu tiên riêng tư",
+              "description": "Không gửi gì đến server bên ngoài"
+            },
+            "security": {
+              "title": "Bảo mật",
+              "description": "Bảo vệ và phát hiện hoạt động trên thiết bị"
+            }
+          },
+          "continue": "Tiếp tục"
+        },
+        "permission": {
+          "title": "Quyền Overlay & Accessibility",
+          "subtitle": "Những quyền này giúp app phát hiện tin nhắn và hiển thị nút quét nhanh",
+          "steps": {
+            "step1": "Cấp quyền overlay",
+            "step2": "Bật dịch vụ accessibility",
+            "step3": "Chọn ứng dụng cần giám sát"
+          },
+          "grant": "Cấp quyền",
+          "skip": "Bỏ qua",
+          "granted": "Đã cấp quyền",
+          "error": "Lỗi khi yêu cầu quyền"
+        }
+      }
+    },
+    "status": {
+      "ready": "Sẵn sàng",
+      "setup": "Cài đặt"
+    },
+    "resetDialog": {
+      "title": "Đặt lại hướng dẫn?",
+      "content": "Hành động này sẽ đặt lại onboarding và cài đặt.",
+      "cancel": "Hủy",
+      "reset": "Đặt lại"
+    }
+  },
+  "bubble": {
+    "section": {
+      "title": "Bubble"
+    },
+    "quickAccess": {
+      "title": "Nút nổi",
+      "description": "Truy cập nhanh chức năng quét và điều khiển"
+    },
+    "setup": {
+      "intro": {
+        "title": "Quét Nhanh",
+        "subtitle": "Quét từ bất kỳ ứng dụng nào với nút nổi",
+        "note": "Nút nổi sẽ xuất hiện trong các ứng dụng được bảo vệ để quét nhanh.",
+        "privacy": {
+          "secure": {
+            "title": "100% An toàn",
+            "description": "An toàn, không có mã độc"
+          },
+          "noData": {
+            "title": "Không Thu Thập Dữ Liệu",
+            "description": "Mọi thứ đều ở trên thiết bị"
+          },
+          "privacy": {
+            "title": "Ưu Tiên Riêng Tư",
+            "description": "Không gì rời khỏi điện thoại"
+          }
+        }
+      },
+      "permission": {
+        "title": "Cài đặt",
+        "subtitle": "Cấp quyền để bật quét nhanh",
+        "overlay": {
+          "title": "Hiển thị overlay",
+          "description": "Hiển thị nút nổi trên màn hình"
+        },
+        "accessibility": {
+          "title": "Accessibility",
+          "description": "Phát hiện nội dung trong ứng dụng",
+          "dialog": {
+            "title": "Bật Dịch Vụ",
+            "message": "Tìm AntiScam trong cài đặt accessibility và bật lên. Bấm Xong khi hoàn tất."
+          }
+        },
+        "selectApps": {
+          "title": "Chọn Ứng Dụng Giám Sát",
+          "description": "Chọn ứng dụng nào sẽ hiển thị nút nổi"
+        },
+        "grantButton": "Bật",
+        "selectButton": "Chọn Ứng Dụng",
+        "allGranted": "Đã cấp tất cả quyền! Bây giờ bạn có thể chọn ứng dụng để giám sát."
+      }
+    },
+    "control": {
+      "title": "Điều khiển Bubble",
+      "status": {
+        "active": "Đang bật",
+        "inactive": "Đang tắt"
+      },
+      "description": {
+        "active": "Nút bảo mật đang hoạt động và sẽ hiển thị trong các ứng dụng được bảo vệ.",
+        "inactive": "Bubble đang tắt. Bật để quét nhanh trong ứng dụng."
+      },
+      "button": {
+        "start": "Bắt đầu",
+        "stop": "Dừng"
+      },
+      "howItWorks": {
+        "title": "Cách hoạt động",
+        "tap": {
+          "title": "Bấm để quét",
+          "description": "Bấm vào bubble để bắt đầu quét nhanh"
+        },
+        "move": {
+          "title": "Kéo để di chuyển",
+          "description": "Kéo bubble đến vị trí mong muốn"
+        },
+        "scan": {
+          "title": "Quét nhanh",
+          "description": "Bubble mở popup quét đơn giản"
+        }
+      },
+      "privacy": {
+        "note": "Chúng tôi chỉ quét tên ứng dụng và nội dung trên thiết bị; không thu thập dữ liệu."
+      },
+      "toast": {
+        "started": "Bubble đã bật",
+        "stopped": "Bubble đã tắt",
+        "error": "Có lỗi xảy ra với bubble"
+      }
+    }
+  }
+}
