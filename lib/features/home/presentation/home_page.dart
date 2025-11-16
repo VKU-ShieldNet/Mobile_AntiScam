@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../app/theme/color_schemes.dart';
-import '../../../core/services/onboarding_service.dart';
 import '../../../core/services/bubble_service.dart';
+import '../../../core/services/onboarding_service.dart';
 import '../../bubble_protection/presentation/screens/bubble_control_screen.dart';
-import '../../bubble_protection/presentation/screens/bubble_setup_intro_screen.dart';
 import '../../onboarding/presentation/pages/onboarding_screen.dart';
+import '../../bubble_protection/presentation/screens/bubble_setup_intro_screen.dart';
 import 'widgets/quick_check_card.dart';
 import 'widgets/bottom_sheet_button.dart';
+import 'widgets/section_header.dart';
+import 'widgets/bubble_control_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -44,6 +47,34 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  /// Reset onboarding and navigate to the onboarding flow
+  Future<void> _resetOnboarding(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('home.resetDialog.title'.tr()),
+        content: Text('home.resetDialog.content'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('home.resetDialog.cancel'.tr()),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('home.resetDialog.reset'.tr()),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      await OnboardingService.resetOnboarding();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,19 +91,19 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         actions: [
-          // Settings icon
           IconButton(
             icon: const Icon(Icons.settings_outlined, color: Colors.black54),
             onPressed: () {
               // TODO: Navigate to settings
             },
           ),
-          // Debug button để reset onboarding
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.black54),
-            tooltip: 'Reset Onboarding (Debug)',
-            onPressed: () => _resetOnboarding(context),
-          ),
+          // Small debug action to reset onboarding for testing (only visible in debug builds)
+          if (kDebugMode)
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.black54),
+              tooltip: 'Reset Onboarding (Debug)',
+              onPressed: () => _resetOnboarding(context),
+            ),
         ],
       ),
       body: SafeArea(
@@ -107,14 +138,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 32),
 
               // Quick check section
-              Text(
-                'home.quickCheck.title'.tr(),
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
-              ),
+              SectionHeader(title: 'home.quickCheck.title'.tr()),
               const SizedBox(height: 16),
 
               // Quick check actions - 3 options
@@ -122,13 +146,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.image_outlined,
                 title: 'home.quickCheck.image.title'.tr(),
                 description: 'home.quickCheck.image.description'.tr(),
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withOpacity(0.1),
-                    AppColors.primary.withOpacity(0.05),
-                  ],
-                ),
-                iconColor: AppColors.primary,
+                iconColor: AppColors.primary70,
                 onTap: () {
                   _showImageCheckBottomSheet(context);
                 },
@@ -138,13 +156,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.link_outlined,
                 title: 'home.quickCheck.link.title'.tr(),
                 description: 'home.quickCheck.link.description'.tr(),
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.info.withOpacity(0.1),
-                    AppColors.info.withOpacity(0.05),
-                  ],
-                ),
-                iconColor: AppColors.info,
+                iconColor: AppColors.primary70,
                 onTap: () {
                   _showLinkCheckBottomSheet(context);
                 },
@@ -154,13 +166,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.message_outlined,
                 title: 'home.quickCheck.message.title'.tr(),
                 description: 'home.quickCheck.message.description'.tr(),
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.success.withOpacity(0.1),
-                    AppColors.success.withOpacity(0.05),
-                  ],
-                ),
-                iconColor: AppColors.success,
+                iconColor: AppColors.primary70,
                 onTap: () {
                   _showMessageCheckBottomSheet(context);
                 },
@@ -168,123 +174,15 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 40),
 
-              // (Advanced settings now live in Bubble control)
-
               // Bubble Control Section
-              Text(
-                'bubble.section.title'.tr(),
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
-              ),
+              SectionHeader(title: 'bubble.section.title'.tr()),
               const SizedBox(height: 16),
 
-              // Bubble control quick access
-              InkWell(
+              BubbleControlCard(
+                hasOverlayPermission: _hasOverlayPermission,
+                hasAccessibilityPermission: _hasAccessibilityPermission,
+                isLoading: _isCheckingPermissions,
                 onTap: () => _navigateToBubbleControl(context),
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.success.withOpacity(0.08),
-                        AppColors.success.withOpacity(0.03),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: AppColors.success.withOpacity(0.2),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.bubble_chart_rounded,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'bubble.quickAccess.title'.tr(),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'bubble.quickAccess.description'.tr(),
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          if (_isCheckingPermissions)
-                            const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.success,
-                              ),
-                            )
-                          else
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                              decoration: BoxDecoration(
-                                color: (_hasOverlayPermission && _hasAccessibilityPermission)
-                                    ? AppColors.success.withOpacity(0.15)
-                                    : Colors.grey[100],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                (_hasOverlayPermission && _hasAccessibilityPermission)
-                                    ? 'home.advanced.status.ready'.tr()
-                                    : 'home.advanced.status.setup'.tr(),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: (_hasOverlayPermission && _hasAccessibilityPermission) ? AppColors.success : Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          const SizedBox(height: 6),
-                          const Icon(
-                            Icons.arrow_forward,
-                            color: AppColors.success,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
               ),
 
               const SizedBox(height: 32),
@@ -295,34 +193,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _resetOnboarding(BuildContext context) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('home.resetDialog.title'.tr()),
-        content: Text(
-          'home.resetDialog.content'.tr(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text('home.resetDialog.cancel'.tr()),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text('home.resetDialog.reset'.tr()),
-          ),
-        ],
-      ),
-    );
 
-    if (confirm == true && context.mounted) {
-      await OnboardingService.resetOnboarding();
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const OnboardingScreen()),
-      );
-    }
-  }
 
   void _showImageCheckBottomSheet(BuildContext context) {
     showModalBottomSheet(
@@ -471,9 +342,9 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Kiểm tra',
-                  style: TextStyle(
+                child: Text(
+                  'home.quickCheck.checkButton'.tr(),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -556,9 +427,9 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Kiểm tra',
-                  style: TextStyle(
+                child: Text(
+                  'home.quickCheck.message.bottomSheet.checkButton'.tr(),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),

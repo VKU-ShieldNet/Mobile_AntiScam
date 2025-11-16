@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:easy_localization/easy_localization.dart';
 
-class QuickCheckCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String description;
-  final Color iconColor;
+import '../../../../app/theme/color_schemes.dart';
+import 'bubble_status_badge.dart';
+
+/// Modern bubble control card with status indicator
+class BubbleControlCard extends StatelessWidget {
+  final bool hasOverlayPermission;
+  final bool hasAccessibilityPermission;
+  final bool isLoading;
   final VoidCallback onTap;
 
-  const QuickCheckCard({
+  const BubbleControlCard({
     Key? key,
-    required this.icon,
-    required this.title,
-    required this.description,
-    required this.iconColor,
+    required this.hasOverlayPermission,
+    required this.hasAccessibilityPermission,
+    required this.isLoading,
     required this.onTap,
   }) : super(key: key);
 
@@ -33,49 +36,64 @@ class QuickCheckCard extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Icon
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: AppColors.success.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 24,
+              child: const Icon(
+                Icons.bubble_chart_rounded,
+                color: AppColors.success,
+                size: 22,
               ),
             ),
             const SizedBox(width: 16),
+            
+            // Content
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title,
+                    'bubble.quickAccess.title'.tr(),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
-                      height: 1.2,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    description,
+                    'bubble.quickAccess.description'.tr(),
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],
-                      height: 1.3,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Colors.grey[400],
+            
+            // Status and arrow
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                BubbleStatusBadge(
+                  hasOverlayPermission: hasOverlayPermission,
+                  hasAccessibilityPermission: hasAccessibilityPermission,
+                  isLoading: isLoading,
+                ),
+                const SizedBox(height: 8),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: AppColors.success,
+                  size: 20,
+                ),
+              ],
             ),
           ],
         ),

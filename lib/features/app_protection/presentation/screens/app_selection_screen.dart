@@ -83,6 +83,14 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          TextButton(
+            onPressed: _selectedPackages.isNotEmpty
+                ? () => Navigator.pop(context, true)
+                : null,
+            child: Text('button.done'.tr()),
+          ),
+        ],
         title: Text(
           'onboarding.appSelection.title'.tr(),
           style: const TextStyle(

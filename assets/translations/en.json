@@ -186,6 +186,7 @@
   "button": {
     "back": "Back",
     "next": "Next",
+    "done": "Done",
     "continue": "Continue",
     "getStarted": "Start protecting me",
     "skip": "Skip"
@@ -202,6 +203,7 @@
     "developing": "Feature in development",
     "quickCheck": {
       "title": "Quick Check",
+      "checkButton": "Check",
       "image": {
         "title": "Image Scan",
         "description": "Scan images for scam indicators",
@@ -238,7 +240,7 @@
       "selectApps": "Choose Protected Apps",
       "status": {
         "ready": "Ready",
-        "setup": "Setup"
+        "setup": "Need Setup"
       },
       "setup": {
         "intro": {

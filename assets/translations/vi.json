@@ -186,6 +186,7 @@
   "button": {
     "back": "Quay lại",
     "next": "Tiếp theo",
+    "done": "Xong",
     "continue": "Tiếp tục",
     "getStarted": "Bắt đầu bảo vệ tôi",
     "skip": "Bỏ qua"
@@ -202,6 +203,7 @@
     "developing": "Tính năng đang phát triển",
     "quickCheck": {
       "title": "Quét nhanh",
+      "checkButton": "Kiểm tra",
       "image": {
         "title": "Quét hình ảnh",
         "description": "Quét ảnh để phát hiện dấu hiệu lừa đảo",
