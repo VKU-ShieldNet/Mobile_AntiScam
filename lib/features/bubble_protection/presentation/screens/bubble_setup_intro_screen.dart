@@ -40,17 +40,17 @@ class BubbleSetupIntroScreen extends StatelessWidget {
                     // Privacy feature cards
                     FeatureCard(
                       icon: Icons.lock_outline,
-                      text: 'bubble.setup.intro.privacy.secure.description'.tr(),
+                      text: 'bubble.setup.intro.privacy.secure.title'.tr(),
                     ),
                     const SizedBox(height: 12),
                     FeatureCard(
                       icon: Icons.cloud_off_outlined,
-                      text: 'bubble.setup.intro.privacy.noData.description'.tr(),
+                      text: 'bubble.setup.intro.privacy.noData.title'.tr(),
                     ),
                     const SizedBox(height: 12),
                     FeatureCard(
                       icon: Icons.shield_outlined,
-                      text: 'bubble.setup.intro.privacy.privacy.description'.tr(),
+                      text: 'bubble.setup.intro.privacy.privacy.title'.tr(),
                     ),
                     
                     const SizedBox(height: 24),

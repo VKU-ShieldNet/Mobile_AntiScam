@@ -187,6 +187,7 @@
     "back": "Back",
     "next": "Next",
     "done": "Done",
+    "cancel": "Cancel",
     "continue": "Continue",
     "getStarted": "Start protecting me",
     "skip": "Skip"
@@ -227,7 +228,8 @@
         "description": "Scan messages for potential scams",
         "bottomSheet": {
           "title": "Check message",
-          "placeholder": "Paste message text to check"
+          "placeholder": "Paste message text to check",
+          "checkButton": "Check Message"
         }
       }
     },
@@ -298,21 +300,21 @@
     },
     "setup": {
       "intro": {
-        "title": "Quick Scan",
+        "title": "Quick Scan 24/7",
         "subtitle": "Scan from any app with a floating button",
         "note": "The bubble will appear in protected apps for instant scanning access.",
         "privacy": {
           "secure": {
-            "title": "100% Secure",
-            "description": "Safe to use, no malicious code"
+            "title": "Fast capture <300ms",
+            "description": "No notification icon shown"
           },
           "noData": {
-            "title": "No Data Collection",
-            "description": "Everything stays on your device"
+            "title": "Monitoring 24/7",
+            "description": "Bubble works silently"
           },
           "privacy": {
-            "title": "Privacy First",
-            "description": "Nothing leaves your phone"
+            "title": "Battery Friendly",
+            "description": "Only captures when needed"
           }
         }
       },
@@ -329,6 +331,16 @@
           "dialog": {
             "title": "Enable Service",
             "message": "Find AntiScam in accessibility settings and enable it. Tap Done when finished."
+          }
+        },
+        "screenCapture": {
+          "title": "Screen capture",
+          "description": "Allow capturing screen for scam detection",
+          "modal": {
+            "title": "Why screen sharing?",
+            "description": "AntiScam needs screen capture permission to analyze content and detect scams when you tap the bubble button.",
+            "warning": "When you see the Android system popup, select 'Share entire screen' to enable full scanning capability.",
+            "instruction": "Next: You'll see the Android system permission dialog. Please select the option to share your entire screen."
           }
         },
         "selectApps": {
@@ -377,6 +389,21 @@
         "stopped": "Bubble stopped",
         "error": "Something went wrong with the bubble"
       }
+    },
+    "permission": {
+      "screenshot": {
+        "title": "Permission to Capture Screen",
+        "subtitle": "AntiScam needs permission to capture your screen to analyze content and detect scams",
+        "secure": "Your data stays on your device",
+        "noData": "No data is sent to any server",
+        "allow": "Grant Permission"
+      }
+    },
+    "capture": {
+      "processing": "Capturing screen...",
+      "success": "Screenshot captured successfully",
+      "failed": "Failed to capture screenshot",
+      "error": "Error capturing screenshot"
     }
   }
 }

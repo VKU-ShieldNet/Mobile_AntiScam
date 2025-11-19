@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
-import 'screen_capture.dart';
+import 'bubble_service.dart';
 
 /// Service quản lý quyền cho toàn app
 class PermissionService {
@@ -21,11 +21,21 @@ class PermissionService {
   static Future<bool> requestScreenCapturePermission() async {
     try {
       debugPrint("[PermissionService] Requesting screen capture permission...");
-      final granted = await ScreenCapture.requestPermission();
+      final granted = await BubbleService.requestScreenCapturePermission();
       debugPrint("[PermissionService] Screen capture: $granted");
       return granted;
     } catch (e) {
       debugPrint("[PermissionService] Error: $e");
+      return false;
+    }
+  }
+
+  static Future<bool> checkScreenCapturePermission() async {
+    try {
+      final hasPermission = await BubbleService.hasScreenCapturePermission();
+      return hasPermission;
+    } catch (e) {
+      debugPrint("[PermissionService] Error checking screen capture: $e");
       return false;
     }
   }

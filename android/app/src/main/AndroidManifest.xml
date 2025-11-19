@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    
+    <!-- For MediaProjection (screen capture) - Android 14+ -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" android:required="false" />
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT" android:protectionLevel="signature|privileged" />
 
     <application
         android:label="AntiScam"
@@ -39,12 +43,12 @@
             android:name="flutterEmbedding"
             android:value="2" />
         <service
-            android:name=".ScreenCaptureHandler"
-            android:exported="false"
-            android:foregroundServiceType="mediaProjection" />
-        <service
             android:name=".FloatingBubbleService"
             android:exported="false" />
+        <service
+            android:name=".ScreenCaptureService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
         <service
             android:name=".AppSwitchAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

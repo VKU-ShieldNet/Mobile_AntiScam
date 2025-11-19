@@ -187,6 +187,7 @@
     "back": "Quay lại",
     "next": "Tiếp theo",
     "done": "Xong",
+    "cancel": "Hủy",
     "continue": "Tiếp tục",
     "getStarted": "Bắt đầu bảo vệ tôi",
     "skip": "Bỏ qua"
@@ -227,7 +228,8 @@
         "description": "Quét tin nhắn để tìm dấu hiệu lừa đảo",
         "bottomSheet": {
           "title": "Kiểm tra tin nhắn",
-          "placeholder": "Dán nội dung tin nhắn vào đây"
+          "placeholder": "Dán nội dung tin nhắn vào đây",
+          "checkButton": "Kiểm tra tin nhắn"
         }
       }
     },
@@ -298,21 +300,21 @@
     },
     "setup": {
       "intro": {
-        "title": "Quét Nhanh",
+        "title": "Quét Nhanh 24/7",
         "subtitle": "Quét từ bất kỳ ứng dụng nào với nút nổi",
         "note": "Nút nổi sẽ xuất hiện trong các ứng dụng được bảo vệ để quét nhanh.",
         "privacy": {
           "secure": {
-            "title": "100% An toàn",
-            "description": "An toàn, không có mã độc"
+            "title": "Chụp nhanh <300ms",
+            "description": "Không hiển thị icon thông báo"
           },
           "noData": {
-            "title": "Không Thu Thập Dữ Liệu",
-            "description": "Mọi thứ đều ở trên thiết bị"
+            "title": "Giám sát 24/7",
+            "description": "Bubble hoạt động thầm lặng"
           },
           "privacy": {
-            "title": "Ưu Tiên Riêng Tư",
-            "description": "Không gì rời khỏi điện thoại"
+            "title": "Không tốn pin",
+            "description": "Chỉ khi cần mới chụp"
           }
         }
       },
@@ -329,6 +331,16 @@
           "dialog": {
             "title": "Bật Dịch Vụ",
             "message": "Tìm AntiScam trong cài đặt accessibility và bật lên. Bấm Xong khi hoàn tất."
+          }
+        },
+        "screenCapture": {
+          "title": "Chụp màn hình",
+          "description": "Cho phép chụp màn hình để phát hiện lừa đảo",
+          "modal": {
+            "title": "Tại sao cần chia sẻ màn hình?",
+            "description": "AntiScam cần quyền chụp màn hình để phân tích nội dung và phát hiện lừa đảo khi bạn bấm nút nổi.",
+            "warning": "Khi thấy popup hệ thống Android, hãy chọn 'Chia sẻ toàn bộ màn hình' để kích hoạt khả năng quét đầy đủ.",
+            "instruction": "Tiếp theo: Bạn sẽ thấy hộp thoại quyền của hệ thống Android. Vui lòng chọn tùy chọn chia sẻ toàn bộ màn hình."
           }
         },
         "selectApps": {
@@ -377,6 +389,21 @@
         "stopped": "Bubble đã tắt",
         "error": "Có lỗi xảy ra với bubble"
       }
+    },
+    "permission": {
+      "screenshot": {
+        "title": "Cấp quyền chụp màn hình",
+        "subtitle": "AntiScam cần quyền chụp màn hình của bạn để phân tích nội dung và phát hiện lừa đảo",
+        "secure": "Dữ liệu của bạn được giữ trên thiết bị",
+        "noData": "Không có dữ liệu được gửi tới máy chủ nào",
+        "allow": "Cấp quyền"
+      }
+    },
+    "capture": {
+      "processing": "Đang chụp màn hình...",
+      "success": "Chụp màn hình thành công",
+      "failed": "Không thể chụp màn hình",
+      "error": "Lỗi khi chụp màn hình"
     }
   }
 }

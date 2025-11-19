@@ -87,9 +87,9 @@ class FloatingBubbleService : Service() {
                 // Animation click
                 animateBubbleClick()
                 
-                // Show popup after animation
+                // Trigger screen capture after animation
                 Handler(Looper.getMainLooper()).postDelayed({
-                    showScanPopup()
+                    triggerScreenCapture()
                 }, 200)
             }
         }
@@ -321,8 +321,102 @@ class FloatingBubbleService : Service() {
     }
 
     /**
-     * Show scan popup mockup
+     * Trigger screen capture directly
      */
+    private fun triggerScreenCapture() {
+        android.util.Log.d("FloatingBubble", "━━━━━━━━━━ CAPTURE TRIGGER DEBUG ━━━━━━━━━━")
+        android.util.Log.d("FloatingBubble", "📸 Triggering screen capture...")
+
+        // Check if MediaProjection is already active (can capture immediately)
+        if (MediaProjectionHolder.isInitialized()) {
+            android.util.Log.d("FloatingBubble", "✅ MediaProjection already active - capturing now!")
+            startQuickCapture()
+            return
+        }
+
+        // Need to get permission token
+        val captureResult = ScreenCaptureHandler.getCaptureResult()
+
+        if (captureResult == null) {
+            android.util.Log.e("FloatingBubble", "❌ No screen capture permission")
+            android.util.Log.e("FloatingBubble", "💡 Opening MainActivity to request permission...")
+            android.util.Log.d("FloatingBubble", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+
+            // Open MainActivity with special intent to request permission
+            val intent = Intent(this, MainActivity::class.java).apply {
+                action = "REQUEST_SCREEN_CAPTURE"
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            startActivity(intent)
+            
+            // Show toast
+            android.os.Handler(android.os.Looper.getMainLooper()).post {
+                android.widget.Toast.makeText(
+                    this,
+                    "Requesting screen capture permission...",
+                    android.widget.Toast.LENGTH_SHORT
+                ).show()
+            }
+            return
+        }
+
+        val (resultCode, resultData) = captureResult
+
+        android.util.Log.d("FloatingBubble", "✅ Permission token found!")
+        android.util.Log.d("FloatingBubble", "   resultCode: $resultCode")
+        android.util.Log.d("FloatingBubble", "   resultData: ${resultData != null}")
+        android.util.Log.d("FloatingBubble", "🚀 Starting capture service...")
+
+        // Start foreground service (required for MediaProjection on Android 14+)
+        // Service will auto-stop after capture (<300ms) to hide notification
+        val intent = Intent(this, ScreenCaptureService::class.java).apply {
+            action = ScreenCaptureService.ACTION_START_CAPTURE
+            putExtra(ScreenCaptureService.EXTRA_RESULT_CODE, resultCode)
+            putExtra(ScreenCaptureService.EXTRA_RESULT_DATA, resultData)
+        }
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            android.util.Log.d("FloatingBubble", "✅ Screen capture service started successfully")
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingBubble", "❌ Failed to start capture service: ${e.message}", e)
+        }
+        
+        android.util.Log.d("FloatingBubble", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    }
+
+    /**
+     * Quick capture using existing MediaProjection (no permission dialog)
+     */
+    private fun startQuickCapture() {
+        android.util.Log.d("FloatingBubble", "⚡ Starting quick capture...")
+        
+        // Check if service is already running with initialized capture system
+        if (!ScreenCaptureService.isRunning()) {
+            android.util.Log.e("FloatingBubble", "❌ ScreenCaptureService not running - cannot quick capture")
+            return
+        }
+        
+        val intent = Intent(this, ScreenCaptureService::class.java).apply {
+            action = ScreenCaptureService.ACTION_CAPTURE_NOW
+        }
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+            android.util.Log.d("FloatingBubble", "✅ Quick capture requested")
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingBubble", "❌ Quick capture failed: ${e.message}", e)
+        }
+    }
+    
     private fun showScanPopup() {
         android.util.Log.d("FloatingBubble", "🔵 showScanPopup called, isPopupShowing: $isPopupShowing")
         

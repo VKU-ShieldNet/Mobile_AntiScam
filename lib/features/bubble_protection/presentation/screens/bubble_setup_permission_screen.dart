@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../core/services/bubble_service.dart';
+import '../../../../core/services/permission_service.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../app/theme/color_schemes.dart';
 import '../../../app_protection/presentation/screens/app_selection_screen.dart';
 import 'bubble_control_screen.dart';
 
@@ -17,6 +19,7 @@ class _BubbleSetupPermissionScreenState
     extends State<BubbleSetupPermissionScreen> with WidgetsBindingObserver {
   bool _hasOverlayPermission = false;
   bool _hasAccessibilityPermission = false;
+  bool _hasScreenCapturePermission = false;
   bool _isRequestingPermission = false;
 
   @override
@@ -46,22 +49,21 @@ class _BubbleSetupPermissionScreenState
       final overlay = await BubbleService.hasOverlayPermission();
       final access = await BubbleService.hasAccessibilityPermission();
       
-      final wasComplete = _hasOverlayPermission && _hasAccessibilityPermission;
-      final nowComplete = overlay && access;
+      final wasComplete = _hasOverlayPermission && _hasAccessibilityPermission && _hasScreenCapturePermission;
+      final nowComplete = overlay && access && _hasScreenCapturePermission;
       
       setState(() {
         _hasOverlayPermission = overlay;
         _hasAccessibilityPermission = access;
       });
       
-      // Auto-navigate when permissions become complete
+      // Auto-navigate when all permissions become complete
       if (nowComplete && !wasComplete) {
         // Small delay to let user see the success state
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
-          // User now has both permissions; open app selection and
-          // continue the setup flow after Done
-          _navigateToAppSelection(fromPermissionComplete: true);
+          // All 3 permissions complete -> go to app selection
+          _navigateToAppSelection();
         }
       }
     } catch (e) {
@@ -117,26 +119,153 @@ class _BubbleSetupPermissionScreenState
     }
   }
 
-  void _navigateToAppSelection({bool fromPermissionComplete = false}) {
+  Future<void> _requestScreenCapturePermission() async {
+    // Show explanation modal first
+    final shouldContinue = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                Icons.info_outline,
+                color: AppColors.primary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'bubble.setup.permission.screenCapture.modal.title'.tr(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'bubble.setup.permission.screenCapture.modal.description'.tr(),
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[700],
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.orange.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.orange,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'bubble.setup.permission.screenCapture.modal.warning'.tr(),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[800],
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'bubble.setup.permission.screenCapture.modal.instruction'.tr(),
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'button.cancel'.tr(),
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text('button.continue'.tr()),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldContinue != true) {
+      return;
+    }
+
+    setState(() => _isRequestingPermission = true);
+    try {
+      final granted = await PermissionService.requestScreenCapturePermission();
+      setState(() {
+        _hasScreenCapturePermission = granted;
+        _isRequestingPermission = false;
+      });
+      
+      // Check if all permissions are now complete and auto-navigate
+      if (granted) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted && _hasOverlayPermission && _hasAccessibilityPermission && _hasScreenCapturePermission) {
+          _navigateToAppSelection();
+        }
+      }
+    } catch (e) {
+      setState(() => _isRequestingPermission = false);
+    }
+  }
+
+  void _navigateToAppSelection() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => const AppSelectionScreen(),
       ),
     ).then((result) {
-      // If the user pressed Done (result == true) we handle according to
-      // where they came from. When called after permission completion we
-      // want to continue the flow to BubbleControl; if the user manually
-      // opened the selector we instead stay on that screen.
+      // After user confirms app selection, go to BubbleControl
       if (result == true) {
-        if (fromPermissionComplete) {
-          _navigateToBubbleControl();
-        } else {
-          // User confirmed selection but we don't auto-navigate here
-          return;
-        }
-      } else {
-        // User cancelled/back pressed -> continue to bubble control
         _navigateToBubbleControl();
       }
     });
@@ -155,7 +284,7 @@ class _BubbleSetupPermissionScreenState
   @override
   Widget build(BuildContext context) {
     final allPermissionsGranted =
-        _hasOverlayPermission && _hasAccessibilityPermission;
+        _hasOverlayPermission && _hasAccessibilityPermission && _hasScreenCapturePermission;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -208,6 +337,19 @@ class _BubbleSetupPermissionScreenState
                       enabled: _hasOverlayPermission,
                       isLoading: _isRequestingPermission,
                     ),
+                    const SizedBox(height: 12),
+
+                    // Step 3: Screen Capture Permission
+                    PermissionStepCard(
+                      stepNumber: 3,
+                      title: 'bubble.setup.permission.screenCapture.title'.tr(),
+                      description: 'bubble.setup.permission.screenCapture.description'.tr(),
+                      isGranted: _hasScreenCapturePermission,
+                      onRequest: _requestScreenCapturePermission,
+                      buttonText: 'bubble.setup.permission.grantButton'.tr(),
+                      enabled: _hasOverlayPermission && _hasAccessibilityPermission,
+                      isLoading: _isRequestingPermission,
+                    ),
                     
                     const SizedBox(height: 24),
                   ],
@@ -215,17 +357,28 @@ class _BubbleSetupPermissionScreenState
               ),
             ),
 
-            // Skip button
-            if (!allPermissionsGranted)
+            // Done button (only show when all permissions granted)
+            if (allPermissionsGranted)
               Padding(
                 padding: const EdgeInsets.all(24),
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'button.skip'.tr(),
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[500],
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _navigateToAppSelection,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'button.done'.tr(),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),

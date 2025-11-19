@@ -6,17 +6,124 @@ import android.os.Build
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import android.content.Context
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.EventChannel
 
 class MainActivity : FlutterActivity() {
 
     private var screenCaptureHandler: ScreenCaptureHandler? = null
     private val bubbleChannel = "anti_scam_bubble"
+    private var screenshotEventSink: EventChannel.EventSink? = null
+    private var isReceiverRegistered = false
+    
+    private val captureReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            when (intent?.action) {
+                "com.example.antiscam_mobile.TRIGGER_CAPTURE" -> {
+                    android.util.Log.d("MainActivity", "🔔 Received TRIGGER_CAPTURE")
+                    screenCaptureHandler?.onMethodCall(
+                        io.flutter.plugin.common.MethodCall("captureScreenshot", null),
+                        object : MethodChannel.Result {
+                            override fun success(result: Any?) {
+                                android.util.Log.d("MainActivity", "✅ Capture triggered: $result")
+                            }
+                            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                                android.util.Log.e("MainActivity", "❌ Capture error: $errorMessage")
+                            }
+                            override fun notImplemented() {}
+                        }
+                    )
+                }
+                "com.example.antiscam_mobile.SCREENSHOT_CAPTURED" -> {
+                    val filePath = intent.getStringExtra("file_path")
+                    android.util.Log.d("MainActivity", "━━━━━━━━━━ BROADCAST RECEIVED ━━━━━━━━━━")
+                    android.util.Log.d("MainActivity", "📸 Screenshot captured!")
+                    android.util.Log.d("MainActivity", "   filePath: $filePath")
+                    android.util.Log.d("MainActivity", "   eventSink: $screenshotEventSink")
+                    
+                    // Send to Flutter via EventChannel
+                    if (screenshotEventSink != null && filePath != null) {
+                        screenshotEventSink?.success(mapOf("file_path" to filePath))
+                        android.util.Log.d("MainActivity", "✅ Sent to Flutter EventChannel")
+                    } else {
+                        android.util.Log.e("MainActivity", "❌ Cannot send: eventSink=$screenshotEventSink, filePath=$filePath")
+                    }
+                    android.util.Log.d("MainActivity", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+                }
+            }
+        }
+    }
+    
+    override fun onStart() {
+        super.onStart()
+        
+        // Handle intent action for screen capture request from bubble
+        if (intent?.action == "REQUEST_SCREEN_CAPTURE") {
+            android.util.Log.d("MainActivity", "🔔 Received REQUEST_SCREEN_CAPTURE intent")
+            screenCaptureHandler?.onMethodCall(
+                io.flutter.plugin.common.MethodCall("requestProjection", null),
+                object : MethodChannel.Result {
+                    override fun success(result: Any?) {
+                        android.util.Log.d("MainActivity", "✅ Permission request completed")
+                    }
+                    override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                        android.util.Log.e("MainActivity", "❌ Permission error: $errorMessage")
+                    }
+                    override fun notImplemented() {}
+                }
+            )
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        // Only unregister when activity is destroyed (not when going to background)
+        if (isReceiverRegistered) {
+            try {
+                unregisterReceiver(captureReceiver)
+                isReceiverRegistered = false
+                android.util.Log.d("MainActivity", "📡 Broadcast receiver unregistered")
+            } catch (e: Exception) {
+                android.util.Log.e("MainActivity", "Error unregistering receiver: ${e.message}")
+            }
+        }
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+
+        // Register broadcast receiver ONCE (persists even when app is in background)
+        if (!isReceiverRegistered) {
+            val filter = IntentFilter().apply {
+                addAction("com.example.antiscam_mobile.TRIGGER_CAPTURE")
+                addAction("com.example.antiscam_mobile.SCREENSHOT_CAPTURED")
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(captureReceiver, filter, Context.RECEIVER_EXPORTED)
+            } else {
+                registerReceiver(captureReceiver, filter)
+            }
+            isReceiverRegistered = true
+            android.util.Log.d("MainActivity", "✅ Broadcast receiver registered")
+        }
+
+        // Setup EventChannel for screenshot events
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.antiscam_mobile/screenshot_events")
+            .setStreamHandler(object : EventChannel.StreamHandler {
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    screenshotEventSink = events
+                    android.util.Log.d("MainActivity", "📡 EventChannel listener registered")
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    screenshotEventSink = null
+                    android.util.Log.d("MainActivity", "📡 EventChannel listener cancelled")
+                }
+            })
 
         // Setup screen capture permission handler
         screenCaptureHandler = ScreenCaptureHandler(this)
@@ -153,6 +260,15 @@ class MainActivity : FlutterActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        
+        android.util.Log.d("MainActivity", "━━━━━━━━━━ ACTIVITY RESULT DEBUG ━━━━━━━━━━")
+        android.util.Log.d("MainActivity", "🔵 onActivityResult called")
+        android.util.Log.d("MainActivity", "   requestCode: $requestCode")
+        android.util.Log.d("MainActivity", "   resultCode: $resultCode")
+        android.util.Log.d("MainActivity", "   data: $data")
+        android.util.Log.d("MainActivity", "   screenCaptureHandler: $screenCaptureHandler")
+        android.util.Log.d("MainActivity", "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        
         // Forward result to screen capture handler
         screenCaptureHandler?.handleActivityResult(requestCode, resultCode, data)
     }
