@@ -120,16 +120,7 @@
       "retry": "Thử lại",
       "granted": "Đã cấp quyền"
     },
-    "demo": {
-      "title": "Thử quét demo",
-      "description": "Hãy thử tính năng quét với kết quả mô phỏng để hiểu cách app hoạt động.",
-      "button": "Thử quét demo"
-    },
-    "ready": {
-      "title": "Sẵn sàng!",
-      "subtitle": "Bắt đầu bảo vệ bản thân ngay",
-      "description": "Bạn đã sẵn sàng sử dụng AntiScam để bảo vệ mình khỏi lừa đảo.",
-      "privacy": "AntiScam không lưu trữ bất kỳ thông tin cá nhân nào của bạn",
+      // "screenCapture": removed
       "features": {
         "scan": {
           "title": "Quét khi nghi ngờ",

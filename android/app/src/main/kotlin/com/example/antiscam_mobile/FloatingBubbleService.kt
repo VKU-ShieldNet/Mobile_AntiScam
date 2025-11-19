@@ -38,7 +38,7 @@ class FloatingBubbleService : Service() {
     
     // Debounce: Prevent rapid hide/show during multiple window events
     private var pendingCheckRunnable: Runnable? = null
-    private val debounceDelay = 300L // 300ms debounce
+    private val debounceDelay = 800L // 800ms debounce
     
     // Receiver for protected apps updates
     private val protectedAppsReceiver = object : BroadcastReceiver() {
