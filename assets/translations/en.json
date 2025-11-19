@@ -18,7 +18,6 @@
         "security": {
           "title": "Maximum Security",
           "description": "Advanced protection against all types of scams"
-        // "screenCapture": removed
         },
         "2": {
           "title": "Screenshot",

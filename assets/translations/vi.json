@@ -120,23 +120,6 @@
       "retry": "Thử lại",
       "granted": "Đã cấp quyền"
     },
-      // "screenCapture": removed
-      "features": {
-        "scan": {
-          "title": "Quét khi nghi ngờ",
-          "description": "Bấm nút quét bất kỳ khi nào cảm thấy không ổn"
-        },
-        "protection": {
-          "title": "Bảo vệ ứng dụng",
-          "description": "Giám sát popup trong các ứng dụng được bảo vệ"
-        },
-        "report": {
-          "title": "Báo cáo lừa đảo",
-          "description": "Giúp cộng đồng bằng cách báo cáo lừa đảo"
-        }
-      },
-      "startButton": "Bắt đầu bảo vệ tôi"
-    },
     "done": {
       "title": "Hoàn tất!",
       "description": "Bạn đã hoàn tất cài đặt. AntiScam đang bảo vệ bạn.",
