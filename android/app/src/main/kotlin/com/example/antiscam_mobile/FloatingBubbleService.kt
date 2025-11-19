@@ -29,16 +29,21 @@ class FloatingBubbleService : Service() {
     private var isBubbleVisible = false
     private var bubbleParams: WindowManager.LayoutParams? = null
     private val handler = Handler(Looper.getMainLooper())
-    private val checkInterval = 2000L // Check every 2 seconds
     
     // Optimization: Track last known state to avoid unnecessary checks
     private var lastKnownPackage: String? = null
     private var lastKnownProtectedApps: Set<String> = setOf()
     private var lastCheckTime: Long = 0
+    private var lastAccessibilityEventTime: Long = 0
     
     // Debounce: Prevent rapid hide/show during multiple window events
     private var pendingCheckRunnable: Runnable? = null
-    private val debounceDelay = 800L // 800ms debounce
+    private val debounceDelay = 300L // 300ms debounce
+    
+    // Fallback check: Only if AccessibilityService not responding
+    private var fallbackCheckRunnable: Runnable? = null
+    private val FALLBACK_CHECK_INTERVAL = 30000L  // 30 seconds (reduced from 5s)
+    private val ACCESSIBILITY_EVENT_TIMEOUT = 10000L  // If no event in 10s, enable fallback
     
     // Receiver for protected apps updates
     private val protectedAppsReceiver = object : BroadcastReceiver() {
@@ -87,9 +92,9 @@ class FloatingBubbleService : Service() {
                 // Animation click
                 animateBubbleClick()
                 
-                // Show popup after animation
+                // Request to scan text from current screen
                 Handler(Looper.getMainLooper()).postDelayed({
-                    showScanPopup()
+                    requestTextScan()
                 }, 200)
             }
         }
@@ -128,28 +133,36 @@ class FloatingBubbleService : Service() {
 
     /**
      * Start monitoring foreground app
-     * Uses AccessibilityService events for real-time detection instead of polling every 2 seconds
-     * Falls back to periodic checks if AccessibilityService unavailable
+     * Primary: Uses AccessibilityService events for real-time detection
+     * Fallback: Only check every 30s if AccessibilityService not responding
      */
     private fun startMonitoringForegroundApp() {
-        // Setup listener from AccessibilityService if available
+        // Setup listener from AccessibilityService - PRIMARY METHOD
         AppSwitchAccessibilityService.setOnPackageChangeListener {
             android.util.Log.d("FloatingBubble", "🔄 App changed (from AccessibilityService) → checking visibility")
+            lastAccessibilityEventTime = System.currentTimeMillis()
             checkAndUpdateBubbleVisibilityDebounced()
         }
         
-        // Fallback: Check every 5 seconds if AccessibilityService inactive
-        handler.post(object : Runnable {
+        // Fallback: Check every 30 seconds ONLY if AccessibilityService not responding
+        // This reduces battery drain significantly
+        fallbackCheckRunnable = object : Runnable {
             override fun run() {
-                val currentTime = System.currentTimeMillis()
-                // Only check if more than 5 seconds since last check
-                if (currentTime - lastCheckTime >= 5000) {
-                    android.util.Log.d("FloatingBubble", "⏱️ Fallback check after 5 seconds")
+                val timeSinceLastEvent = System.currentTimeMillis() - lastAccessibilityEventTime
+                
+                // If no AccessibilityEvent in 10 seconds, enable fallback checking
+                if (timeSinceLastEvent > ACCESSIBILITY_EVENT_TIMEOUT) {
+                    android.util.Log.d("FloatingBubble", "⚠️ No AccessibilityEvent for ${timeSinceLastEvent}ms, running fallback check")
                     checkAndUpdateBubbleVisibility()
                 }
-                handler.postDelayed(this, 5000)
+                
+                // Re-schedule fallback check every 30 seconds
+                handler.postDelayed(this, FALLBACK_CHECK_INTERVAL)
             }
-        })
+        }
+        fallbackCheckRunnable?.let { handler.postDelayed(it, FALLBACK_CHECK_INTERVAL) }
+        
+        android.util.Log.d("FloatingBubble", "✅ Monitoring started: Primary=AccessibilityEvent, Fallback=30s")
     }
 
     /**
@@ -157,7 +170,9 @@ class FloatingBubbleService : Service() {
      */
     private fun stopMonitoringForegroundApp() {
         handler.removeCallbacksAndMessages(null)
+        fallbackCheckRunnable?.let { handler.removeCallbacks(it) }
         AppSwitchAccessibilityService.clearOnPackageChangeListener()
+        android.util.Log.d("FloatingBubble", "🛑 Monitoring stopped")
     }
 
     /**
@@ -285,6 +300,25 @@ class FloatingBubbleService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    /**
+     * Request AccessibilityService to scan text from current screen
+     */
+    private fun requestTextScan() {
+        try {
+            android.util.Log.d("FloatingBubble", "🔍 Requesting text scan from AccessibilityService...")
+            
+            if (AppSwitchAccessibilityService.getInstance() == null) {
+                android.util.Log.w("FloatingBubble", "⚠️ AccessibilityService not available. Please enable it in settings.")
+                return
+            }
+            
+            // Request scan
+            AppSwitchAccessibilityService.requestTextScan()
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingBubble", "❌ Error requesting text scan: ${e.message}", e)
+        }
+    }
 
     /**
      * Animation when bubble is clicked
