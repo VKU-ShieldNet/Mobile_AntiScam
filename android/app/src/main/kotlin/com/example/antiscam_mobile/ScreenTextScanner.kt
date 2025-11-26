@@ -19,9 +19,9 @@ class ScreenTextScanner(private val context: AccessibilityService) {
         val rect: Rect,
         val className: String
     )
-    
+
     private var junkKeywordsSet: Set<String> = emptySet()
-    
+
     init {
         loadJunkKeywords()
     }
@@ -37,29 +37,68 @@ class ScreenTextScanner(private val context: AccessibilityService) {
                 android.util.Log.w("TextScanner", "⚠️ No root node available for scanning")
                 return emptyList()
             }
-            
+
             // Get viewport boundaries
             val viewport = getViewportBounds()
-            
+
             val textItems = mutableListOf<TextItem>()
             var urlFromWebView: String? = null
             extractTextFromNode(rootNode, textItems, viewport)
-            
+
             // Try to extract URL from WebView or URL bar
             urlFromWebView = extractUrlFromScreen(rootNode)
-            
+
             // Sort by position: top to bottom, left to right
             textItems.sortWith(compareBy({ it.rect.top }, { it.rect.left }))
-            
+
             logResults(textItems, urlFromWebView)
             rootNode.recycle()
-            
+
+            // Build final text output
+            val scannedText = if (!urlFromWebView.isNullOrBlank()) {
+                "main link: $urlFromWebView | " + textItems.joinToString(" ") { it.text }
+            } else {
+                textItems.joinToString(" ") { it.text }
+            }
+
+            // Call Flutter to handle the scanned text
+            if (scannedText.isNotBlank()) {
+                callFlutterWithScannedText(scannedText)
+            }
+
             return textItems.map { it.text }
         } catch (e: Exception) {
             android.util.Log.e("TextScanner", "❌ Error scanning screen text: ${e.message}", e)
             return emptyList()
         }
     }
+
+    /**
+     * Call Flutter via MethodChannel with scanned text
+     */
+    private fun callFlutterWithScannedText(text: String) {
+        try {
+            android.util.Log.d("TextScanner", "📱 Calling Flutter with scanned text...")
+
+            // Get MainActivity instance to access MethodChannel
+            val activity = context.applicationContext as? android.app.Application
+            if (activity == null) {
+                android.util.Log.w("TextScanner", "⚠️ Cannot get application context")
+                return
+            }
+
+            // Send broadcast to MainActivity
+            val intent = android.content.Intent("com.example.antiscam_mobile.TEXT_SCANNED")
+            intent.setPackage(context.packageName)
+            intent.putExtra("text", text)
+            context.sendBroadcast(intent)
+
+            android.util.Log.d("TextScanner", "✅ Broadcast sent to MainActivity")
+        } catch (e: Exception) {
+            android.util.Log.e("TextScanner", "❌ Error calling Flutter: ${e.message}", e)
+        }
+    }
+
 
     /**
      * Get viewport boundaries (center content area)
@@ -69,7 +108,7 @@ class ScreenTextScanner(private val context: AccessibilityService) {
         val displayMetrics = context.resources.displayMetrics
         val screenHeight = displayMetrics.heightPixels
         val screenWidth = displayMetrics.widthPixels
-        
+
         return Rect(
             20,                         // left
             200,                        // top
@@ -91,26 +130,26 @@ class ScreenTextScanner(private val context: AccessibilityService) {
             if (!node.isVisibleToUser) {
                 return
             }
-            
+
             // Get node bounds
             val rect = Rect()
             node.getBoundsInScreen(rect)
-            
+
             // Check if node intersects with viewport
             if (isInViewport(rect, viewport)) {
                 val className = node.className?.toString() ?: ""
                 val text = node.text?.toString()
-                
+
                 if (!text.isNullOrBlank()) {
                     val trimmedText = text.trim()
-                    
+
                     // Apply filters
                     if (shouldIncludeText(trimmedText, className)) {
                         textItems.add(TextItem(trimmedText, rect, getSimpleClassName(className)))
                     }
                 }
             }
-            
+
             // Recursively process children
             for (i in 0 until node.childCount) {
                 val child = node.getChild(i)
@@ -140,13 +179,13 @@ class ScreenTextScanner(private val context: AccessibilityService) {
     private fun shouldIncludeText(text: String, className: String): Boolean {
         // Filter by length
         if (text.length < 3) return false
-        
+
         // Filter junk text
         if (isJunkText(text)) return false
-        
+
         // Only include content node types
         if (!isContentNode(className)) return false
-        
+
         return true
     }
 
@@ -167,16 +206,16 @@ class ScreenTextScanner(private val context: AccessibilityService) {
      */
     private fun isJunkText(text: String): Boolean {
         val lowerText = text.lowercase()
-        
+
         // Check against junk keywords from JSON
         if (junkKeywordsSet.contains(lowerText)) return true
-        
+
         // Skip if all digits and too short (not a phone number)
         if (text.all { it.isDigit() } && text.length < 8) return true
-        
+
         // Skip if all special characters
         if (text.all { !it.isLetterOrDigit() }) return true
-        
+
         return false
     }
 
@@ -194,7 +233,7 @@ class ScreenTextScanner(private val context: AccessibilityService) {
         android.util.Log.d("TextScanner", "━".repeat(60))
         android.util.Log.d("TextScanner", "📝 SCREEN CONTENT (${textItems.size} items)")
         android.util.Log.d("TextScanner", "━".repeat(60))
-        
+
         if (textItems.isEmpty()) {
             android.util.Log.d("TextScanner", "⚠️ No content found in viewport")
         } else {
@@ -204,13 +243,13 @@ class ScreenTextScanner(private val context: AccessibilityService) {
             } else {
                 textItems.joinToString(" ") { it.text }
             }
-            
+
             android.util.Log.d("TextScanner", output)
         }
-        
+
         android.util.Log.d("TextScanner", "━".repeat(60))
     }
-    
+
     /**
      * Load junk keywords from JSON resource file
      */
@@ -220,12 +259,12 @@ class ScreenTextScanner(private val context: AccessibilityService) {
             val jsonText = inputStream.bufferedReader().use { it.readText() }
             val jsonObject = JSONObject(jsonText)
             val keywordArray = jsonObject.getJSONArray("junkKeywords")
-            
+
             val keywords = mutableSetOf<String>()
             for (i in 0 until keywordArray.length()) {
                 keywords.add(keywordArray.getString(i).lowercase())
             }
-            
+
             junkKeywordsSet = keywords
         } catch (e: Exception) {
             android.util.Log.e("TextScanner", "❌ Error loading junk keywords: ${e.message}")
@@ -241,15 +280,15 @@ class ScreenTextScanner(private val context: AccessibilityService) {
         try {
             val viewport = getViewportBounds()
             val foundUrls = mutableListOf<String>()
-            
+
             searchForUrl(rootNode, foundUrls, viewport)
-            
+
             if (foundUrls.isNotEmpty()) {
                 val url = foundUrls.first()
                 android.util.Log.v("TextScanner", "🔗 Found URL: $url")
                 return url
             }
-            
+
             return null
         } catch (e: Exception) {
             android.util.Log.e("TextScanner", "❌ Error extracting URL: ${e.message}")
@@ -263,15 +302,15 @@ class ScreenTextScanner(private val context: AccessibilityService) {
     private fun searchForUrl(node: AccessibilityNodeInfo, urls: MutableList<String>, viewport: Rect) {
         try {
             if (!node.isVisibleToUser) return
-            
+
             val text = node.text?.toString() ?: ""
-            
+
             // Check if text looks like a URL
             if (isUrlText(text)) {
                 urls.add(text)
                 return  // Found URL, stop searching
             }
-            
+
             // Recursively search children
             for (i in 0 until node.childCount) {
                 val child = node.getChild(i)
@@ -292,12 +331,12 @@ class ScreenTextScanner(private val context: AccessibilityService) {
      */
     private fun isUrlText(text: String): Boolean {
         val lowerText = text.lowercase()
-        
+
         // Common URL patterns
         if (lowerText.startsWith("http://")) return true
         if (lowerText.startsWith("https://")) return true
         if (lowerText.startsWith("www.")) return true
-        
+
         // Domain pattern: something.something (simple check)
         if (text.contains(".") && !text.contains(" ")) {
             val parts = text.split(".")
@@ -306,7 +345,7 @@ class ScreenTextScanner(private val context: AccessibilityService) {
                 return true
             }
         }
-        
+
         return false
     }
 }

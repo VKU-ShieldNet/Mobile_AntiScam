@@ -1,0 +1,14 @@
+{
+  "languages": [
+    {
+      "code": "eng",
+      "name": "English"
+    },
+    {
+      "code": "vie",
+      "name": "Vietnamese"
+    }
+  ],
+  "psm": 3,
+  "preserve_interword_spaces": 1
+}

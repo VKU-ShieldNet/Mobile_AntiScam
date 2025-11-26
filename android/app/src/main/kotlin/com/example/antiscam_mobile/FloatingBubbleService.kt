@@ -29,22 +29,29 @@ class FloatingBubbleService : Service() {
     private var isBubbleVisible = false
     private var bubbleParams: WindowManager.LayoutParams? = null
     private val handler = Handler(Looper.getMainLooper())
-    
+
     // Optimization: Track last known state to avoid unnecessary checks
     private var lastKnownPackage: String? = null
     private var lastKnownProtectedApps: Set<String> = setOf()
     private var lastCheckTime: Long = 0
     private var lastAccessibilityEventTime: Long = 0
-    
+
     // Debounce: Prevent rapid hide/show during multiple window events
     private var pendingCheckRunnable: Runnable? = null
     private val debounceDelay = 300L // 300ms debounce
-    
+
     // Fallback check: Only if AccessibilityService not responding
     private var fallbackCheckRunnable: Runnable? = null
     private val FALLBACK_CHECK_INTERVAL = 30000L  // 30 seconds (reduced from 5s)
     private val ACCESSIBILITY_EVENT_TIMEOUT = 10000L  // If no event in 10s, enable fallback
-    
+
+    // Scan state: Prevent spam clicking
+    private var isScanning = false
+
+    // Managers for cleaner code organization
+    private lateinit var notificationManager: ScanNotificationManager
+    private lateinit var scanResultPopup: ScanResultPopup
+
     // Receiver for protected apps updates
     private val protectedAppsReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -57,10 +64,41 @@ class FloatingBubbleService : Service() {
         }
     }
 
+    // Receiver for scan results
+    private val scanResultReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "com.example.antiscam_mobile.SHOW_SCAN_RESULT") {
+                android.util.Log.d("FloatingBubble", "📥 Received scan result broadcast!")
+
+                val isSafe = intent.getBooleanExtra("isSafe", false)
+                val label = intent.getStringExtra("label") ?: ""
+                val evidence = intent.getStringArrayListExtra("evidence") ?: arrayListOf()
+                val recommendation = intent.getStringArrayListExtra("recommendation") ?: arrayListOf()
+
+                android.util.Log.d("FloatingBubble", "📊 Result: isSafe=$isSafe, label=$label")
+
+                // Unlock bubble for next scan
+                isScanning = false
+                android.util.Log.d("FloatingBubble", "🔓 Scan completed, bubble unlocked")
+
+                // Dismiss scanning notification
+                notificationManager.dismissScanningNotification()
+
+                // Show popup with result
+                scanResultPopup.show(isSafe, label, evidence, recommendation)
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+
+        // Initialize managers
+        notificationManager = ScanNotificationManager(this)
+        scanResultPopup = ScanResultPopup(this, windowManager)
+
         val inflater = LayoutInflater.from(this)
         bubbleView = inflater.inflate(R.layout.view_bubble, null)
 
@@ -85,13 +123,34 @@ class FloatingBubbleService : Service() {
         }
 
         bubbleView?.apply {
-            setOnTouchListener(FloatingDragTouchListener(windowManager, this, bubbleParams!!))
+            setOnTouchListener(FloatingDragTouchListener(
+                context = this@FloatingBubbleService,
+                windowManager = windowManager,
+                view = this,
+                params = bubbleParams!!,
+                onDismiss = {
+                    // Hide bubble when dismissed
+                    hideBubble()
+                }
+            ))
             setOnClickListener {
                 android.util.Log.d("FloatingBubble", "🟢 Bubble clicked!")
-                
+
+                // Prevent spam clicking
+                if (isScanning) {
+                    android.util.Log.d("FloatingBubble", "⚠️ Already scanning, ignoring click")
+                    return@setOnClickListener
+                }
+
+                isScanning = true
+                android.util.Log.d("FloatingBubble", "🔒 Scan started, bubble locked")
+
                 // Animation click
                 animateBubbleClick()
-                
+
+                // Show native notification
+                notificationManager.showScanningNotification()
+
                 // Request to scan text from current screen
                 Handler(Looper.getMainLooper()).postDelayed({
                     requestTextScan()
@@ -106,10 +165,19 @@ class FloatingBubbleService : Service() {
                 IntentFilter("com.example.antiscam_mobile.PROTECTED_APPS_UPDATED"),
                 Context.RECEIVER_EXPORTED
             )
+            registerReceiver(
+                scanResultReceiver,
+                IntentFilter("com.example.antiscam_mobile.SHOW_SCAN_RESULT"),
+                Context.RECEIVER_EXPORTED
+            )
         } else {
             registerReceiver(
                 protectedAppsReceiver,
                 IntentFilter("com.example.antiscam_mobile.PROTECTED_APPS_UPDATED")
+            )
+            registerReceiver(
+                scanResultReceiver,
+                IntentFilter("com.example.antiscam_mobile.SHOW_SCAN_RESULT")
             )
         }
 
@@ -120,12 +188,14 @@ class FloatingBubbleService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         stopMonitoringForegroundApp()
+        scanResultPopup.dismiss()
         dismissPopup()
         hideBubble()
         bubbleView = null
-        
+
         try {
             unregisterReceiver(protectedAppsReceiver)
+            unregisterReceiver(scanResultReceiver)
         } catch (e: Exception) {
             // Receiver not registered
         }
@@ -143,25 +213,25 @@ class FloatingBubbleService : Service() {
             lastAccessibilityEventTime = System.currentTimeMillis()
             checkAndUpdateBubbleVisibilityDebounced()
         }
-        
+
         // Fallback: Check every 30 seconds ONLY if AccessibilityService not responding
         // This reduces battery drain significantly
         fallbackCheckRunnable = object : Runnable {
             override fun run() {
                 val timeSinceLastEvent = System.currentTimeMillis() - lastAccessibilityEventTime
-                
+
                 // If no AccessibilityEvent in 10 seconds, enable fallback checking
                 if (timeSinceLastEvent > ACCESSIBILITY_EVENT_TIMEOUT) {
                     android.util.Log.d("FloatingBubble", "⚠️ No AccessibilityEvent for ${timeSinceLastEvent}ms, running fallback check")
                     checkAndUpdateBubbleVisibility()
                 }
-                
+
                 // Re-schedule fallback check every 30 seconds
                 handler.postDelayed(this, FALLBACK_CHECK_INTERVAL)
             }
         }
         fallbackCheckRunnable?.let { handler.postDelayed(it, FALLBACK_CHECK_INTERVAL) }
-        
+
         android.util.Log.d("FloatingBubble", "✅ Monitoring started: Primary=AccessibilityEvent, Fallback=30s")
     }
 
@@ -181,7 +251,7 @@ class FloatingBubbleService : Service() {
     private fun checkAndUpdateBubbleVisibilityDebounced() {
         // Cancel pending check if exists
         pendingCheckRunnable?.let { handler.removeCallbacks(it) }
-        
+
         // Schedule new check after debounce delay
         pendingCheckRunnable = Runnable {
             checkAndUpdateBubbleVisibility()
@@ -197,7 +267,7 @@ class FloatingBubbleService : Service() {
         Thread {
             try {
                 lastCheckTime = System.currentTimeMillis()
-                
+
                 // Prioritize AccessibilityService for real-time accuracy
                 val currentPackage = AppSwitchAccessibilityService.getCurrentPackage()
                     ?: getCurrentForegroundApp() // Fallback if AccessibilityService not active
@@ -268,7 +338,7 @@ class FloatingBubbleService : Service() {
      */
     private fun showBubble() {
         if (isBubbleVisible) return
-        
+
         try {
             bubbleView?.let {
                 windowManager.addView(it, bubbleParams)
@@ -285,7 +355,7 @@ class FloatingBubbleService : Service() {
      */
     private fun hideBubble() {
         if (!isBubbleVisible) return
-        
+
         try {
             bubbleView?.let {
                 windowManager.removeView(it)
@@ -307,12 +377,12 @@ class FloatingBubbleService : Service() {
     private fun requestTextScan() {
         try {
             android.util.Log.d("FloatingBubble", "🔍 Requesting text scan from AccessibilityService...")
-            
+
             if (AppSwitchAccessibilityService.getInstance() == null) {
                 android.util.Log.w("FloatingBubble", "⚠️ AccessibilityService not available. Please enable it in settings.")
                 return
             }
-            
+
             // Request scan
             AppSwitchAccessibilityService.requestTextScan()
         } catch (e: Exception) {
@@ -359,7 +429,7 @@ class FloatingBubbleService : Service() {
      */
     private fun showScanPopup() {
         android.util.Log.d("FloatingBubble", "🔵 showScanPopup called, isPopupShowing: $isPopupShowing")
-        
+
         if (isPopupShowing) {
             android.util.Log.d("FloatingBubble", "⚠️ Popup already showing, skipping")
             return
@@ -393,7 +463,7 @@ class FloatingBubbleService : Service() {
                 // Make popup clickable and focusable
                 isFocusable = true
                 isClickable = true
-                
+
                 findViewById<ImageView>(R.id.btn_close)?.setOnClickListener {
                     dismissPopup()
                 }
@@ -464,15 +534,15 @@ class FloatingBubbleService : Service() {
     private fun getProtectedAppsFromStorage(): Set<String> {
         try {
             val prefs = getSharedPreferences("com.example.antiscam_mobile", Context.MODE_PRIVATE)
-            
+
             // Android only supports StringSet (Flutter saves List, becomes Set via MethodChannel)
             val apps = prefs.getStringSet("protectedApps", null) ?: setOf()
-            
+
             if (!apps.isNullOrEmpty()) {
                 android.util.Log.d("FloatingBubble", "✅ Found protected apps (${apps.size}): $apps")
                 return apps
             }
-            
+
             android.util.Log.d("FloatingBubble", "⚠️ No protected apps in SharedPreferences")
             return setOf()
         } catch (e: Exception) {
@@ -554,4 +624,5 @@ class FloatingBubbleService : Service() {
             null
         }
     }
+
 }
