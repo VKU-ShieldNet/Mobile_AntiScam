@@ -59,7 +59,9 @@ class _BubbleSetupPermissionScreenState
         // Small delay to let user see the success state
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
-          _navigateToAppSelection();
+          // User now has both permissions; open app selection and
+          // continue the setup flow after Done
+          _navigateToAppSelection(fromPermissionComplete: true);
         }
       }
     } catch (e) {
@@ -115,15 +117,28 @@ class _BubbleSetupPermissionScreenState
     }
   }
 
-  void _navigateToAppSelection() {
+  void _navigateToAppSelection({bool fromPermissionComplete = false}) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => const AppSelectionScreen(),
       ),
-    ).then((_) {
-      // After selecting apps, go to bubble control screen
-      _navigateToBubbleControl();
+    ).then((result) {
+      // If the user pressed Done (result == true) we handle according to
+      // where they came from. When called after permission completion we
+      // want to continue the flow to BubbleControl; if the user manually
+      // opened the selector we instead stay on that screen.
+      if (result == true) {
+        if (fromPermissionComplete) {
+          _navigateToBubbleControl();
+        } else {
+          // User confirmed selection but we don't auto-navigate here
+          return;
+        }
+      } else {
+        // User cancelled/back pressed -> continue to bubble control
+        _navigateToBubbleControl();
+      }
     });
   }
 

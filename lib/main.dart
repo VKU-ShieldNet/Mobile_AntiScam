@@ -6,6 +6,7 @@ import 'features/onboarding/presentation/pages/onboarding_screen.dart';
 import 'features/home/presentation/home_page.dart';
 import 'app/theme/color_schemes.dart';
 import 'app/presentation/pages/splash_screen.dart';
+import 'core/services/bubble_scan_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +14,9 @@ Future<void> main() async {
 
   // Initialize SharedPreferences for app data storage
   await SharedPreferences.getInstance();
+
+  // Setup bubble scan service handler EARLY before runApp
+  BubbleScanService.setupHandler();
 
   runApp(
     EasyLocalization(
@@ -24,12 +28,37 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('🔧 _MyAppState.initState called');
+
+    // Initialize bubble scan service with navigatorKey immediately
+    debugPrint('✅ Initializing BubbleScanService with navigatorKey...');
+    BubbleScanService.initialize(_navigatorKey);
+  }
+
+
+  @override
+  void dispose() {
+    BubbleScanService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'AntiScam',
       theme: ThemeData(
         primaryColor: AppColors.primary80,

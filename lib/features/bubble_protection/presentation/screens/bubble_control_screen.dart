@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../app/theme/color_schemes.dart';
 import '../../../../core/services/bubble_service.dart';
 import '../../../app_protection/presentation/screens/app_selection_screen.dart';
@@ -86,6 +87,18 @@ class _BubbleControlScreenState extends State<BubbleControlScreen> {
       setState(() => _isRequestingPermission = false);
     }
   }
+
+  /// Sync protected apps from Flutter SharedPreferences to Android native SharedPreferences
+  Future<void> _syncProtectedApps() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final protectedApps = prefs.getStringList('protectedApps') ?? [];
+      await BubbleService.setProtectedApps(protectedApps);
+    } catch (e) {
+      debugPrint('Error syncing protected apps: $e');
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -461,6 +474,9 @@ class _BubbleControlScreenState extends State<BubbleControlScreen> {
           }
           return;
         }
+
+        // Sync protected apps to native side before starting bubble
+        await _syncProtectedApps();
 
         // Start bubble
         await BubbleService.startBubble();

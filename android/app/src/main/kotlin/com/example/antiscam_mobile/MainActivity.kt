@@ -6,22 +6,71 @@ import android.os.Build
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import android.content.Context
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
+import android.app.NotificationManager
+import android.app.NotificationChannel
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
 
-    private var screenCaptureHandler: ScreenCaptureHandler? = null
     private val bubbleChannel = "anti_scam_bubble"
+    private var bubbleMethodChannel: MethodChannel? = null
+
+    // Broadcast receiver for text scan events
+    private val textScanReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "com.example.antiscam_mobile.TEXT_SCANNED") {
+                val text = intent.getStringExtra("text")
+                android.util.Log.d("MainActivity", "📥 Received text scan broadcast: ${text?.substring(0, minOf(50, text.length ?: 0))}...")
+
+                if (!text.isNullOrBlank()) {
+                    android.util.Log.d("MainActivity", "🔄 bubbleMethodChannel is null? ${bubbleMethodChannel == null}")
+                    android.util.Log.d("MainActivity", "🔄 Attempting to invoke method 'onTextScanned'...")
+
+                    try {
+                        bubbleMethodChannel?.invokeMethod("onTextScanned", text)
+                        android.util.Log.d("MainActivity", "✅ Forwarded to Flutter")
+                    } catch (e: Exception) {
+                        android.util.Log.e("MainActivity", "❌ Error invoking method: ${e.message}", e)
+                    }
+                }
+            }
+        }
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // Setup screen capture permission handler
-        screenCaptureHandler = ScreenCaptureHandler(this)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "screen_capture")
-            .setMethodCallHandler(screenCaptureHandler!!)
+        // Create notification channel for Android 8+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "scan_channel",
+                "Scan Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            channel.description = "Notifications for text scanning"
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager?.createNotificationChannel(channel)
+            android.util.Log.d("MainActivity", "✅ Notification channel created")
+        }
+
+        // Register broadcast receiver
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            registerReceiver(
+                textScanReceiver,
+                IntentFilter("com.example.antiscam_mobile.TEXT_SCANNED"),
+                Context.RECEIVER_EXPORTED
+            )
+        } else {
+            registerReceiver(
+                textScanReceiver,
+                IntentFilter("com.example.antiscam_mobile.TEXT_SCANNED")
+            )
+        }
+        android.util.Log.d("MainActivity", "✅ Text scan receiver registered")
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.antiscam_mobile/app_monitor")
             .setMethodCallHandler { call, result ->
@@ -29,14 +78,14 @@ class MainActivity : FlutterActivity() {
                     "setProtectedApps" -> {
                         val apps = call.argument<List<String>>("apps") ?: emptyList()
                         android.util.Log.d("MainActivity", "📥 Received protected apps from Flutter: $apps")
-                        
+
                         val pref = getSharedPreferences("com.example.antiscam_mobile", MODE_PRIVATE)
                         pref.edit().putStringSet("protectedApps", apps.toSet()).apply()
-                        
+
                         val intent = Intent("com.example.antiscam_mobile.PROTECTED_APPS_UPDATED")
                         intent.putStringArrayListExtra("apps", ArrayList(apps))
                         sendBroadcast(intent)
-                        
+
                         android.util.Log.d("MainActivity", "✅ Saved protected apps to SharedPreferences: $apps")
                         result.success(null)
                     }
@@ -45,34 +94,65 @@ class MainActivity : FlutterActivity() {
             }
 
         // Bubble control
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, bubbleChannel)
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "hasOverlayPermission" -> {
-                        result.success(Settings.canDrawOverlays(this))
-                    }
-                    "hasAccessibilityPermission" -> {
-                        result.success(isAccessibilityServiceEnabled())
-                    }
-                    "requestOverlayPermission" -> {
-                        requestOverlayPermission()
-                        result.success(null)
-                    }
-                    "requestAccessibilityPermission" -> {
-                        requestAccessibilityPermission()
-                        result.success(null)
-                    }
-                    "startBubble" -> {
-                        startBubbleService()
-                        result.success(null)
-                    }
-                    "stopBubble" -> {
-                        stopBubbleService()
-                        result.success(null)
-                    }
-                    else -> result.notImplemented()
+        bubbleMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, bubbleChannel)
+        android.util.Log.d("MainActivity", "✅ Bubble method channel created")
+
+        bubbleMethodChannel?.setMethodCallHandler { call, result ->
+            android.util.Log.d("MainActivity", "📱 Received method call from Flutter: ${call.method}")
+
+            when (call.method) {
+                "hasOverlayPermission" -> {
+                    result.success(Settings.canDrawOverlays(this))
                 }
+                "hasAccessibilityPermission" -> {
+                    result.success(isAccessibilityServiceEnabled())
+                }
+                "requestOverlayPermission" -> {
+                    requestOverlayPermission()
+                    result.success(null)
+                }
+                "requestAccessibilityPermission" -> {
+                    requestAccessibilityPermission()
+                    result.success(null)
+                }
+                "startBubble" -> {
+                    startBubbleService()
+                    result.success(null)
+                }
+                "stopBubble" -> {
+                    stopBubbleService()
+                    result.success(null)
+                }
+                "showScanResult" -> {
+                    // Receive scan result from Flutter and broadcast to FloatingBubbleService
+                    val data = call.arguments as? Map<*, *>
+                    android.util.Log.d("MainActivity", "📥 Received scan result from Flutter: $data")
+
+                    if (data != null) {
+                        val intent = Intent("com.example.antiscam_mobile.SHOW_SCAN_RESULT")
+                        intent.setPackage(packageName)
+                        intent.putExtra("isSafe", data["isSafe"] as? Boolean ?: false)
+                        intent.putExtra("label", data["label"] as? String ?: "")
+                        intent.putExtra("evidence", ArrayList(data["evidence"] as? List<String> ?: emptyList()))
+                        intent.putExtra("recommendation", ArrayList(data["recommendation"] as? List<String> ?: emptyList()))
+                        sendBroadcast(intent)
+                        android.util.Log.d("MainActivity", "✅ Broadcast sent to FloatingBubbleService")
+                    }
+
+                    result.success(null)
+                }
+                else -> result.notImplemented()
             }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        try {
+            unregisterReceiver(textScanReceiver)
+        } catch (e: Exception) {
+            // Receiver not registered
+        }
     }
 
     private fun requestOverlayPermission() {
@@ -149,11 +229,5 @@ class MainActivity : FlutterActivity() {
     private fun stopBubbleService() {
         val intent = Intent(this, FloatingBubbleService::class.java)
         stopService(intent)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // Forward result to screen capture handler
-        screenCaptureHandler?.handleActivityResult(requestCode, resultCode, data)
     }
 }

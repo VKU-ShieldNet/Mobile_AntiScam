@@ -4,7 +4,6 @@ class QuickCheckCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String description;
-  final Gradient gradient;
   final Color iconColor;
   final VoidCallback onTap;
 
@@ -13,7 +12,6 @@ class QuickCheckCard extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.description,
-    required this.gradient,
     required this.iconColor,
     required this.onTap,
   }) : super(key: key);
@@ -24,23 +22,23 @@ class QuickCheckCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: iconColor.withOpacity(0.2),
-            width: 1.5,
+            color: Colors.grey[200]!,
+            width: 1,
           ),
         ),
         child: Row(
           children: [
             Container(
-              width: 48,
-              height: 48,
+              width: 44,
+              height: 44,
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
+                color: iconColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
