@@ -120,6 +120,32 @@
       "retry": "Thử lại",
       "granted": "Đã cấp quyền"
     },
+    "demo": {
+      "title": "Thử quét demo",
+      "description": "Thử tính năng quét với kết quả giả lập để hiểu cách ứng dụng hoạt động.",
+      "button": "Thử quét demo"
+    },
+    "ready": {
+      "title": "Bạn đã sẵn sàng!",
+      "subtitle": "Bắt đầu bảo vệ bản thân ngay bây giờ",
+      "description": "Bạn đã sẵn sàng sử dụng AntiScam để bảo vệ mình khỏi lừa đảo.",
+      "privacy": "AntiScam không lưu trữ bất kỳ thông tin cá nhân nào",
+      "features": {
+        "scan": {
+          "title": "Quét khi nghi ngờ",
+          "description": "Bấm nút quét bất kỳ khi nào cảm thấy không ổn"
+        },
+        "protection": {
+          "title": "Bảo vệ ứng dụng",
+          "description": "Theo dõi popup trong các ứng dụng được bảo vệ"
+        },
+        "report": {
+          "title": "Báo cáo lừa đảo",
+          "description": "Giúp cộng đồng bằng cách báo cáo lừa đảo"
+        }
+      },
+      "startButton": "Bắt đầu bảo vệ tôi"
+    },
     "done": {
       "title": "Hoàn tất!",
       "description": "Bạn đã hoàn tất cài đặt. AntiScam đang bảo vệ bạn.",
@@ -179,13 +205,14 @@
       "title": "Quét nhanh",
       "checkButton": "Kiểm tra",
       "image": {
-        "title": "Quét hình ảnh",
-        "description": "Quét ảnh để phát hiện dấu hiệu lừa đảo",
+        "title": "Quét tài liệu",
+        "description": "Quét văn bản trong ảnh/tài liệu",
         "bottomSheet": {
-          "title": "Kiểm tra ảnh",
-          "subtitle": "Chọn hoặc chụp ảnh để quét",
-          "gallery": "Từ thư viện",
-          "camera": "Chụp ảnh"
+          "title": "Quét văn bản",
+          "subtitle": "Chọn ảnh hoặc chụp tài liệu để trích xuất văn bản",
+          "gallery": "Chọn từ thư viện",
+          "camera": "Chụp ảnh",
+          "file": "Chọn file"
         }
       },
       "link": {

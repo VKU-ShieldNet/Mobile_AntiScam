@@ -195,13 +195,14 @@
       "title": "Quick Check",
       "checkButton": "Check",
       "image": {
-        "title": "Image Scan",
-        "description": "Scan images for scam indicators",
+        "title": "Document Scan",
+        "description": "Extract and scan text from images",
         "bottomSheet": {
-          "title": "Check image",
-          "subtitle": "Select or take a photo to scan",
-          "gallery": "From gallery",
-          "camera": "Use camera"
+          "title": "Scan Document",
+          "subtitle": "Select image or take photo to extract text",
+          "gallery": "Pick from gallery",
+          "camera": "Take photo",
+          "file": "Choose file"
         }
       },
       "link": {
