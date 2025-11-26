@@ -1,8 +1,10 @@
 import 'package:device_apps/device_apps.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:easy_localization/easy_localization.dart';
 import '../../../../app/theme/color_schemes.dart';
+import '../../../../core/services/bubble_service.dart';
 
 /// Screen for selecting apps to protect with popup monitoring
 class AppSelectionScreen extends StatefulWidget {
@@ -27,6 +29,11 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     _selectedPackages = prefs.getStringList('protectedApps')?.toSet() ?? {};
+
+    // Sync existing selection to Android native (in case out of sync)
+    if (_selectedPackages.isNotEmpty) {
+      await BubbleService.setProtectedApps(_selectedPackages.toList());
+    }
 
     // Get all launchable apps (system + user)
     final apps = await DeviceApps.getInstalledApplications(
@@ -68,7 +75,10 @@ class _AppSelectionScreenState extends State<AppSelectionScreen> {
         _selectedPackages.remove(package);
       }
     });
+    // Save to Flutter SharedPreferences (for UI state)
     await prefs.setStringList('protectedApps', _selectedPackages.toList());
+    // Sync to Android native SharedPreferences (for FloatingBubbleService)
+    await BubbleService.setProtectedApps(_selectedPackages.toList());
   }
 
   @override
