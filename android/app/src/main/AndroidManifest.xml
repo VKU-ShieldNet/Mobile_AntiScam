@@ -6,6 +6,12 @@
     <!-- Removed: Media projection permissions no longer used -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
+    
+    <!-- Image picker permissions -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
     <application
         android:label="AntiScam"
@@ -63,6 +69,11 @@
     <intent>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
+    </intent>
+
+    <!-- Camera intent for image picker -->
+    <intent>
+        <action android:name="android.media.action.IMAGE_CAPTURE" />
     </intent>
 
     <!-- Explicitly whitelist một vài app user -->
