@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
+// Removed screen capture dependency. Keep Flutter imports minimal.
 import 'package:permission_handler/permission_handler.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
-import 'screen_capture.dart';
 
 /// Service quản lý quyền cho toàn app
 class PermissionService {
@@ -17,18 +16,6 @@ class PermissionService {
     return status.isGranted;
   }
 
-  /// 2️⃣ Quyền chụp màn hình (MediaProjection)
-  static Future<bool> requestScreenCapturePermission() async {
-    try {
-      debugPrint("[PermissionService] Requesting screen capture permission...");
-      final granted = await ScreenCapture.requestPermission();
-      debugPrint("[PermissionService] Screen capture: $granted");
-      return granted;
-    } catch (e) {
-      debugPrint("[PermissionService] Error: $e");
-      return false;
-    }
-  }
 
   /// 3️⃣ Quyền overlay (nút nổi)
   static Future<bool> requestOverlayPermission() async {
@@ -55,7 +42,7 @@ class PermissionService {
     final results = <String, bool>{};
 
     results['notification'] = await requestNotificationPermission();
-    results['screenCapture'] = await requestScreenCapturePermission();
+    // Note: screen capture (MediaProjection) removed; no longer requested.
 
     if (includeOverlay) {
       results['overlay'] = await requestOverlayPermission();

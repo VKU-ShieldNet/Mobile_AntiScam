@@ -18,16 +18,6 @@
         "security": {
           "title": "Maximum Security",
           "description": "Advanced protection against all types of scams"
-        }
-      },
-      "startButton": "Get Started"
-    },
-    "howItWorks": {
-      "title": "How it works",
-      "steps": {
-        "1": {
-          "title": "Tap to scan",
-          "description": "Tap the scan button when suspicious"
         },
         "2": {
           "title": "Screenshot",

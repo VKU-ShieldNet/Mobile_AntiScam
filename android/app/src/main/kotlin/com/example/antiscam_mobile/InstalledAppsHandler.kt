@@ -9,7 +9,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
 
 /**
- * Handler lấy danh sách app cài đặt (tên, package, icon Base64)
+ * Get all installed apps with their names, package names, and icons in Base64 format.
  */
 class InstalledAppsHandler(private val context: Context) : MethodChannel.MethodCallHandler {
 

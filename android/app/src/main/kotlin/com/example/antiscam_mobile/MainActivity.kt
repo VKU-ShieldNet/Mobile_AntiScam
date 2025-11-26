@@ -12,16 +12,11 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
 
-    private var screenCaptureHandler: ScreenCaptureHandler? = null
     private val bubbleChannel = "anti_scam_bubble"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // Setup screen capture permission handler
-        screenCaptureHandler = ScreenCaptureHandler(this)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "screen_capture")
-            .setMethodCallHandler(screenCaptureHandler!!)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.antiscam_mobile/app_monitor")
             .setMethodCallHandler { call, result ->
@@ -149,11 +144,5 @@ class MainActivity : FlutterActivity() {
     private fun stopBubbleService() {
         val intent = Intent(this, FloatingBubbleService::class.java)
         stopService(intent)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        // Forward result to screen capture handler
-        screenCaptureHandler?.handleActivityResult(requestCode, resultCode, data)
     }
 }
