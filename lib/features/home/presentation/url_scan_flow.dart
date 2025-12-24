@@ -15,7 +15,6 @@ Future<void> _scanInBackground(
     debugPrint('🔄 Starting scan for: $url');
     final result = await service.scanUrl(url);
     debugPrint('✅ Scan completed: ${result.isSafe ? "Safe" : "Unsafe"}');
-    debugPrint('📊 Result details: riskLevel=${result.riskLevel}, score=${result.score}');
 
     // Close loading dialog and pass result back
     if (dialogCtx.mounted) {

@@ -25,11 +25,11 @@ class TextScanService {
 
   Future<TextScanResult> scanText(String text) async {
     try {
-      debugPrint('📤 Sending POST request to $baseUrl/text/analyze');
+      debugPrint('📤 Sending POST request to $baseUrl/scan/text');
       debugPrint('📋 Request body: {"text": "$text"}');
-      
+
       final response = await _dio.post(
-        '$baseUrl/text/analyze',
+        '$baseUrl/scan/text',
         data: {'text': text},
         options: Options(
           headers: {'Content-Type': 'application/json'},
