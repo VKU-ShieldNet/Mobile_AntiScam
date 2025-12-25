@@ -54,6 +54,13 @@ class ScreenTextScanner(private val context: AccessibilityService) {
             logResults(textItems, urlFromWebView)
             rootNode.recycle()
 
+            // If no content found and no URL, don't proceed with API call
+            if (textItems.isEmpty() && urlFromWebView.isNullOrBlank()) {
+                android.util.Log.w("TextScanner", "⚠️ No scannable content found on screen - cancelling scan")
+                notifyScanCancelled()
+                return emptyList()
+            }
+
             // Build final text output
             val scannedText = if (!urlFromWebView.isNullOrBlank()) {
                 "main link: $urlFromWebView | " + textItems.joinToString(" ") { it.text }
@@ -99,10 +106,27 @@ class ScreenTextScanner(private val context: AccessibilityService) {
         }
     }
 
+    /**
+     * Notify that scan was cancelled due to no content
+     */
+    private fun notifyScanCancelled() {
+        try {
+            // Unlock bubble for next scan
+            val intent = android.content.Intent("com.example.antiscam_mobile.SCAN_CANCELLED")
+            intent.setPackage(context.packageName)
+            context.sendBroadcast(intent)
+            
+            android.util.Log.d("TextScanner", "🚫 Scan cancelled - no content found")
+        } catch (e: Exception) {
+            android.util.Log.e("TextScanner", "❌ Error notifying scan cancellation: ${e.message}", e)
+        }
+    }
+
 
     /**
      * Get viewport boundaries (center content area)
-     * Excludes: top 200px (status/app bar), bottom 150px (nav bar), left/right 20px margins
+     * Excludes: top 100px (status/app bar - reduced), bottom 100px (nav bar - reduced), left/right margins
+     * This allows capturing more content, especially from messaging apps
      */
     private fun getViewportBounds(): Rect {
         val displayMetrics = context.resources.displayMetrics
@@ -110,10 +134,10 @@ class ScreenTextScanner(private val context: AccessibilityService) {
         val screenWidth = displayMetrics.widthPixels
 
         return Rect(
-            20,                         // left
-            200,                        // top
-            screenWidth - 20,           // right
-            screenHeight - 150          // bottom
+            10,                         // left - reduced margin
+            100,                        // top - reduced from 200
+            screenWidth - 10,           // right - reduced margin
+            screenHeight - 100          // bottom - reduced from 150
         )
     }
 
@@ -175,22 +199,40 @@ class ScreenTextScanner(private val context: AccessibilityService) {
 
     /**
      * Determine if text should be included based on filters
+     * More lenient for messaging app content
      */
     private fun shouldIncludeText(text: String, className: String): Boolean {
-        // Filter by length
-        if (text.length < 3) return false
+        // Filter by length - allow shorter text since messages can be brief
+        if (text.length < 2) return false
 
         // Filter junk text
         if (isJunkText(text)) return false
 
-        // Only include content node types
+        // For messaging apps, be more lenient
+        if (isMessagingAppContent(className)) {
+            return true
+        }
+
+        // For other content nodes, apply strict filtering
         if (!isContentNode(className)) return false
 
         return true
     }
 
     /**
+     * Check if this is likely content from a messaging app (Facebook, Messenger, etc.)
+     */
+    private fun isMessagingAppContent(className: String): Boolean {
+        val lowerClass = className.lowercase()
+        return lowerClass.contains("message") ||
+               lowerClass.contains("chat") ||
+               lowerClass.contains("bubble") ||
+               lowerClass.contains("conversation")
+    }
+
+    /**
      * Check if node class contains main content
+     * Expanded to include more view types to capture content from Facebook, Messenger, etc.
      */
     private fun isContentNode(className: String): Boolean {
         return className.contains("TextView") ||
@@ -198,7 +240,12 @@ class ScreenTextScanner(private val context: AccessibilityService) {
                className.contains("WebView") ||
                className.contains("RecyclerView") ||
                className.contains("ListView") ||
-               className.contains("ScrollView")
+               className.contains("ScrollView") ||
+               className.contains("Button") ||
+               className.contains("View") ||  // Catch-all for custom views
+               className.contains("Message") ||
+               className.contains("Chat") ||
+               className.contains("Text")
     }
 
     /**
@@ -215,6 +262,9 @@ class ScreenTextScanner(private val context: AccessibilityService) {
 
         // Skip if all special characters
         if (text.all { !it.isLetterOrDigit() }) return true
+
+        // Skip common single letters/numbers that are UI elements
+        if (text.length == 1) return true
 
         return false
     }

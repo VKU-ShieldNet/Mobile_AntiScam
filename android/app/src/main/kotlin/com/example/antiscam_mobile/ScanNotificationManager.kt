@@ -40,6 +40,22 @@ class ScanNotificationManager(private val context: Context) {
     }
 
     /**
+     * Create a basic notification for the foreground service
+     */
+    fun createInitialNotification(): android.app.Notification {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            android.app.Notification.Builder(context, CHANNEL_ID)
+        } else {
+            android.app.Notification.Builder(context)
+        }.apply {
+            setSmallIcon(R.mipmap.ic_launcher)
+            setContentTitle("AntiScam đang chạy")
+            setContentText("Bong bóng bảo vệ đang hoạt động.")
+            setPriority(android.app.Notification.PRIORITY_MIN) // Low priority for persistent notification
+        }.build()
+    }
+
+    /**
      * Show "Scanning..." notification
      */
     fun showScanningNotification() {

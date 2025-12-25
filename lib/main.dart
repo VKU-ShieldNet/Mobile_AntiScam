@@ -60,6 +60,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: _navigatorKey,
       title: 'AntiScam',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: AppColors.primary80,
         colorScheme: ColorScheme.fromSeed(

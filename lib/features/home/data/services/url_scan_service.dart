@@ -29,31 +29,29 @@ class UrlScanService {
   /// Returns [UrlScanResult] with analysis details
   Future<UrlScanResult> scanUrl(String url) async {
     try {
-      debugPrint('📤 Sending POST request to $baseUrl/model/analyze');
+      debugPrint('📤 Sending POST request to $baseUrl/scan/website');
       debugPrint('📋 Request body: {"url": "$url"}');
-      
+
       final response = await _dio.post(
-        '$baseUrl/model/analyze',
+        '$baseUrl/scan/website',
         data: {'url': url},
         options: Options(
           headers: {'Content-Type': 'application/json'},
+          receiveTimeout: const Duration(seconds: 45), // Increased timeout for analysis
         ),
       );
 
       debugPrint('📥 Response status: ${response.statusCode}');
-      debugPrint('📦 Response data: ${response.data}');
-      debugPrint('📦 Response data type: ${response.data.runtimeType}');
+      debugPrint('📦 Response data available: ${response.data != null}');
 
       if (response.statusCode == 200) {
         try {
           debugPrint('🔄 Parsing response to UrlScanResult...');
           final result = UrlScanResult.fromJson(response.data as Map<String, dynamic>);
-          debugPrint('✅ Successfully parsed: isSafe=${result.isSafe}, riskLevel=${result.riskLevel}');
+          debugPrint('✅ Successfully parsed: isSafe=${result.isSafe}, score=${result.riskScore}');
           return result;
         } catch (parseError) {
           debugPrint('❌ JSON parsing error: $parseError');
-          debugPrint('   Raw response: $response.data');
-          debugPrint('   Response keys: ${(response.data as Map).keys}');
           throw Exception('Failed to parse response: $parseError\nResponse: ${response.data}');
         }
       } else {
@@ -72,8 +70,32 @@ class UrlScanService {
       }
     } catch (e) {
       debugPrint('⚠️ Unexpected error: $e');
-      debugPrint('   Error type: ${e.runtimeType}');
       throw Exception('Unexpected error: $e');
+    }
+  }
+
+  /// Get website preview (screenshot)
+  Future<WebsitePreviewResult> getWebsitePreview(String url) async {
+    try {
+      debugPrint('📤 Sending POST request to $baseUrl/preview/website');
+
+      final response = await _dio.post(
+        '$baseUrl/preview/website',
+        data: {'url': url},
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return WebsitePreviewResult.fromJson(response.data as Map<String, dynamic>);
+      } else {
+        throw Exception('Failed to get preview: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error getting preview: $e');
+      throw Exception('Failed to load website preview');
     }
   }
 }

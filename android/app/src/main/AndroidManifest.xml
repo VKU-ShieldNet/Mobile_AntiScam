@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <!-- Removed: Media projection permissions no longer used -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
@@ -47,7 +48,8 @@
         <!-- Removed: Screen capture foreground service (MediaProjection) -->
         <service
             android:name=".FloatingBubbleService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
         <service
             android:name=".AppSwitchAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

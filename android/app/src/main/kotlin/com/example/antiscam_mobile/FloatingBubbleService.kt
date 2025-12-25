@@ -90,6 +90,39 @@ class FloatingBubbleService : Service() {
         }
     }
 
+    // Receiver for scan cancellation
+    private val scanCancelledReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == "com.example.antiscam_mobile.SCAN_CANCELLED") {
+                android.util.Log.d("FloatingBubble", "🚫 Scan was cancelled - no content found")
+
+                // Unlock bubble for next scan
+                isScanning = false
+
+                // Dismiss scanning notification
+                notificationManager.dismissScanningNotification()
+            }
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        try {
+            val notification = notificationManager.createInitialNotification()
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                // Android 14+ requires serviceType parameter
+                startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+            } else {
+                startForeground(1, notification)
+            }
+            
+            android.util.Log.d("FloatingBubble", "✅ Started as foreground service")
+        } catch (e: Exception) {
+            android.util.Log.e("FloatingBubble", "❌ Error starting foreground service: ${e.message}", e)
+        }
+        return START_STICKY
+    }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -170,6 +203,11 @@ class FloatingBubbleService : Service() {
                 IntentFilter("com.example.antiscam_mobile.SHOW_SCAN_RESULT"),
                 Context.RECEIVER_EXPORTED
             )
+            registerReceiver(
+                scanCancelledReceiver,
+                IntentFilter("com.example.antiscam_mobile.SCAN_CANCELLED"),
+                Context.RECEIVER_EXPORTED
+            )
         } else {
             registerReceiver(
                 protectedAppsReceiver,
@@ -178,6 +216,10 @@ class FloatingBubbleService : Service() {
             registerReceiver(
                 scanResultReceiver,
                 IntentFilter("com.example.antiscam_mobile.SHOW_SCAN_RESULT")
+            )
+            registerReceiver(
+                scanCancelledReceiver,
+                IntentFilter("com.example.antiscam_mobile.SCAN_CANCELLED")
             )
         }
 
@@ -196,6 +238,7 @@ class FloatingBubbleService : Service() {
         try {
             unregisterReceiver(protectedAppsReceiver)
             unregisterReceiver(scanResultReceiver)
+            unregisterReceiver(scanCancelledReceiver)
         } catch (e: Exception) {
             // Receiver not registered
         }
