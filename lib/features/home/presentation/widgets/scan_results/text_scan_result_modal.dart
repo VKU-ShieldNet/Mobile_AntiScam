@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import '../../../data/models/text_scan_result.dart';
 import '../../../../../app/theme/color_schemes.dart';
-
 
 class TextScanResultModal extends StatelessWidget {
   final TextScanResult result;
@@ -16,7 +17,15 @@ class TextScanResultModal extends StatelessWidget {
   }
 
   IconData _getLabelIcon() {
-    return result.isSafe ? Icons.check_circle_outline : Icons.dangerous_outlined;
+    return result.isSafe ? Icons.check_circle : Icons.dangerous;
+  }
+
+  String _getLabelText() {
+    if (result.isSafe) return 'SAFE CONTENT';
+    // Translate common labels if needed
+    if (result.label.toUpperCase() == 'SCAM') return 'SCAM DETECTED';
+    if (result.label.toUpperCase() == 'SPAM') return 'SPAM DETECTED';
+    return result.label.toUpperCase();
   }
 
   @override
@@ -26,149 +35,185 @@ class TextScanResultModal extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 12),
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-          Flexible(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: SafeArea(
+        top: true,
+        bottom: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.fromLTRB(24, 56, 24, 24),
+              decoration: BoxDecoration(
+                color: labelColor.withValues(alpha: 0.1),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Row(
                 children: [
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      decoration: BoxDecoration(
-                        color: labelColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: labelColor.withOpacity(0.3),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _getLabelIcon(),
+                  Icon(_getLabelIcon(), color: labelColor, size: 32),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _getLabelText(),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
                             color: labelColor,
-                            size: 24,
+                            letterSpacing: 0.5,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            result.label,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              color: labelColor,
-                              letterSpacing: 0.5,
-                            ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          result.isSafe ? 'No threats found' : 'Potential threat detected',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
                           ),
-                        ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    color: Colors.grey[700],
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ),
+
+            // Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (result.evidence.isNotEmpty)
+                      _buildSection(
+                        title: 'Evidence',
+                        icon: Icons.search,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: result.evidence
+                              .map((item) => _buildBulletPoint(item))
+                              .toList(),
+                        ),
+                        iconColor: AppColors.primary,
+                      ),
+
+                    if (result.evidence.isNotEmpty) const SizedBox(height: 16),
+
+                    if (result.recommendation.isNotEmpty)
+                      _buildSection(
+                        title: 'Recommendations',
+                        icon: Icons.tips_and_updates,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: result.recommendation
+                              .map((item) => _buildBulletPoint(item))
+                              .toList(),
+                        ),
+                        backgroundColor: labelColor.withValues(alpha: 0.05),
+                        iconColor: labelColor,
+                      ),
+
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ),
+            ),
+
+            // Sticky Footer Action Buttons
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Colors.grey[200]!)),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Clipboard.setData(ClipboardData(text: result.recommendation.join('\n')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Copied results to clipboard')),
+                        );
+                      },
+                      icon: const Icon(Icons.copy, size: 18),
+                      label: const Text('Copy Results'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(color: Colors.grey[300]!),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        foregroundColor: Colors.grey[700],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  if (result.evidence.isNotEmpty)
-                    _buildSection(
-                      title: 'Bằng chứng',
-                      items: result.evidence,
-                      icon: Icons.search_outlined,
-                    ),
-                  if (result.evidence.isNotEmpty) const SizedBox(height: 16),
-                  if (result.recommendation.isNotEmpty)
-                    _buildSection(
-                      title: 'Khuyến nghị',
-                      items: result.recommendation,
-                      icon: Icons.tips_and_updates_outlined,
-                      backgroundColor: labelColor.withOpacity(0.05),
-                    ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
+                  const SizedBox(width: 12),
+                  Expanded(
                     child: ElevatedButton(
                       onPressed: () => Navigator.pop(context),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
                         elevation: 0,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text(
-                        'Đóng',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      child: const Text('Close'),
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSection({
     required String title,
-    required List<String> items,
     required IconData icon,
+    required Widget child,
     Color? backgroundColor,
+    Color? iconColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: backgroundColor ?? Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: AppColors.primary,
-              ),
+              Icon(icon, size: 20, color: iconColor ?? Colors.black87),
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF37352F),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: iconColor != null ? Color.lerp(iconColor, Colors.black, 0.4) : Colors.black87,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: items
-                .map((item) => _buildBulletPoint(item))
-                .toList(),
-          ),
+          child,
         ],
       ),
     );
@@ -181,23 +226,22 @@ class TextScanResultModal extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(right: 12, top: 4),
+            padding: const EdgeInsets.only(right: 10, top: 6),
             child: Container(
-              width: 6,
-              height: 6,
+              width: 5,
+              height: 5,
               decoration: BoxDecoration(
-                color: AppColors.primary,
+                color: Colors.grey[600],
                 shape: BoxShape.circle,
               ),
             ),
           ),
           Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[800],
-                height: 1.5,
+            child: MarkdownBody(
+              data: text,
+              styleSheet: MarkdownStyleSheet(
+                p: TextStyle(fontSize: 14, height: 1.5, color: Colors.grey[800]),
+                strong: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
               ),
             ),
           ),
