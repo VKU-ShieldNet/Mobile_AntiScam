@@ -66,8 +66,8 @@ class ScanNotificationManager(private val context: Context) {
                 android.app.Notification.Builder(context)
             }.apply {
                 setSmallIcon(R.mipmap.ic_launcher) // Use app icon instead of generic icon
-                setContentTitle("Anti-Scam đang quét")
-                setContentText("Đang phân tích nội dung để phát hiện nguy hiểm...")
+                setContentTitle("Anti-Scam is scanning")
+                setContentText("Analyzing content to detect dangers...")
                 setOngoing(true) // Cannot be dismissed
                 setAutoCancel(false)
                 setProgress(0, 0, true) // Indeterminate progress

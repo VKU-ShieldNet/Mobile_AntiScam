@@ -77,7 +77,7 @@ class ScanResultPopup(
                 // Evidence section
                 if (evidence.isNotEmpty()) {
                     popupLayout.addView(createSection(
-                        "Bằng chứng",
+                        "Evidence",
                         evidence,
                         "🔍",
                         greyBgColor
@@ -94,7 +94,7 @@ class ScanResultPopup(
                         Color.blue(labelColor)
                     )
                     popupLayout.addView(createSection(
-                        "Khuyến nghị",
+                        "Recommendation",
                         recommendation,
                         "💡",
                         recBgColor
@@ -287,7 +287,7 @@ class ScanResultPopup(
 
     private fun createCloseButton(onClick: () -> Unit) =
         Button(context).apply {
-            text = "Đóng"
+            text = "Close"
             textSize = 16f
             setTextColor(Color.WHITE)
             setTypeface(null, android.graphics.Typeface.BOLD)

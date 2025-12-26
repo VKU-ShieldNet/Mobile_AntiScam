@@ -14,14 +14,14 @@ class _UrlScanLoadingDialogState extends State<UrlScanLoadingDialog> {
   Timer? _timer;
 
   final List<String> _scanningMessages = [
-    'Đang phân tích URL...',
-    'Đang kiểm tra độ an toàn...',
-    'Đang quét sâu website...',
-    'Đang đánh giá mức độ nguy hiểm...',
-    'Đang tổng hợp kết quả...',
-    'Đang xác thực nguồn gốc...',
-    'Đang kiểm tra lịch sử...',
-    'Đang phân tích nội dung...',
+    'Analyzing URL...',
+    'Checking safety...',
+    'Deep scanning website...',
+    'Assessing danger level...',
+    'Compiling results...',
+    'Verifying source...',
+    'Checking history...',
+    'Analyzing content...',
   ];
 
   @override
@@ -88,7 +88,7 @@ class _UrlScanLoadingDialogState extends State<UrlScanLoadingDialog> {
 
             // Title
             const Text(
-              'Đang quét...',
+              'Scanning...',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
