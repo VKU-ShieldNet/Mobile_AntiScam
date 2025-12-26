@@ -56,8 +56,8 @@ class NotificationService {
 
       await _notificationsPlugin.show(
         1, // notification id
-        '🔍 Quét Văn Bản',
-        'Đang quét và phân tích văn bản...',
+        'Scanning',
+        'Analyzing content to detect dangers...',
         notificationDetails,
       );
 

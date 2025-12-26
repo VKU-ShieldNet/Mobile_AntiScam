@@ -141,3 +141,103 @@ class WebsitePreviewResult {
     );
   }
 }
+
+// ========== THIRD-PARTY REPUTATION MODELS ==========
+
+class ReputationResult {
+  final String url;
+  final int reputationScore;
+  final SafeBrowsingResult safeBrowsing;
+  final VirusTotalResult virusTotal;
+  final String recommendation;
+
+  ReputationResult({
+    required this.url,
+    required this.reputationScore,
+    required this.safeBrowsing,
+    required this.virusTotal,
+    required this.recommendation,
+  });
+
+  factory ReputationResult.fromJson(Map<String, dynamic> json) {
+    final sources = json['sources'] as Map<String, dynamic>? ?? {};
+    return ReputationResult(
+      url: json['url'] as String? ?? '',
+      reputationScore: (json['reputation_score'] as num?)?.toInt() ?? 50,
+      safeBrowsing: SafeBrowsingResult.fromJson(
+        sources['safe_browsing'] as Map<String, dynamic>? ?? {},
+      ),
+      virusTotal: VirusTotalResult.fromJson(
+        sources['virustotal'] as Map<String, dynamic>? ?? {},
+      ),
+      recommendation: json['recommendation'] as String? ?? 'Unknown',
+    );
+  }
+}
+
+class SafeBrowsingResult {
+  final String status; // 'safe', 'unsafe', 'error', 'disabled'
+  final String? threatType;
+  final String? message;
+  final String? error;
+
+  SafeBrowsingResult({
+    required this.status,
+    this.threatType,
+    this.message,
+    this.error,
+  });
+
+  bool get isSafe => status == 'safe';
+  bool get isUnsafe => status == 'unsafe';
+  bool get isDisabled => status == 'disabled';
+  bool get isError => status == 'error';
+
+  factory SafeBrowsingResult.fromJson(Map<String, dynamic> json) {
+    return SafeBrowsingResult(
+      status: json['status'] as String? ?? 'error',
+      threatType: json['threat_type'] as String?,
+      message: json['message'] as String?,
+      error: json['error'] as String?,
+    );
+  }
+}
+
+class VirusTotalResult {
+  final String status; // 'analyzed', 'not_found', 'error', 'disabled'
+  final int malicious;
+  final int suspicious;
+  final int harmless;
+  final int undetected;
+  final String? message;
+  final String? error;
+
+  VirusTotalResult({
+    required this.status,
+    this.malicious = 0,
+    this.suspicious = 0,
+    this.harmless = 0,
+    this.undetected = 0,
+    this.message,
+    this.error,
+  });
+
+  bool get isAnalyzed => status == 'analyzed';
+  bool get isNotFound => status == 'not_found';
+  bool get isDisabled => status == 'disabled';
+  bool get isError => status == 'error';
+
+  int get totalEngines => malicious + suspicious + harmless + undetected;
+
+  factory VirusTotalResult.fromJson(Map<String, dynamic> json) {
+    return VirusTotalResult(
+      status: json['status'] as String? ?? 'error',
+      malicious: (json['malicious'] as num?)?.toInt() ?? 0,
+      suspicious: (json['suspicious'] as num?)?.toInt() ?? 0,
+      harmless: (json['harmless'] as num?)?.toInt() ?? 0,
+      undetected: (json['undetected'] as num?)?.toInt() ?? 0,
+      message: json['message'] as String?,
+      error: json['error'] as String?,
+    );
+  }
+}

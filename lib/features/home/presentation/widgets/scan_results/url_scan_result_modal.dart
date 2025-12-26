@@ -20,12 +20,17 @@ class UrlScanResultModal extends StatefulWidget {
 
 class _UrlScanResultModalState extends State<UrlScanResultModal> {
   late Future<WebsitePreviewResult> _previewFuture;
+  late Future<ReputationResult> _reputationFuture;
+  late UrlScanService _service;
 
   @override
   void initState() {
     super.initState();
+    _service = UrlScanService.create();
     // Fetch preview image (screenshot)
-    _previewFuture = UrlScanService.create().getWebsitePreview(widget.result.url);
+    _previewFuture = _service.getWebsitePreview(widget.result.url);
+    // Fetch third-party reputation data
+    _reputationFuture = _service.getReputationCheck(widget.result.url);
   }
 
   Color _getRiskColor() {
@@ -140,6 +145,11 @@ class _UrlScanResultModalState extends State<UrlScanResultModal> {
 
                     // Security Checks
                     _buildChecksSection(),
+
+                    const SizedBox(height: 16),
+
+                    // Third-Party Security Report
+                    _buildReputationSection(),
 
                     const SizedBox(height: 16),
 
@@ -409,6 +419,329 @@ class _UrlScanResultModalState extends State<UrlScanResultModal> {
           ),
           const SizedBox(height: 12),
           child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReputationSection() {
+    return FutureBuilder<ReputationResult>(
+      future: _reputationFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildSection(
+            title: 'Third-Party Security Check',
+            icon: Icons.shield,
+            backgroundColor: Colors.purple.withOpacity(0.05),
+            iconColor: Colors.purple,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 12),
+                Text(
+                  'Checking external databases...',
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return _buildSection(
+            title: 'Third-Party Security Check',
+            icon: Icons.shield,
+            backgroundColor: Colors.grey.withOpacity(0.05),
+            iconColor: Colors.grey,
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, color: Colors.grey, size: 18),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Unable to fetch external reports',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final reputation = snapshot.data!;
+        return _buildSection(
+          title: 'Third-Party Security Check',
+          icon: Icons.shield,
+          backgroundColor: Colors.purple.withOpacity(0.05),
+          iconColor: Colors.purple,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Reputation Score
+              _buildReputationScoreIndicator(reputation.reputationScore),
+              const SizedBox(height: 16),
+
+              // Google Safe Browsing
+              _buildSafeBrowsingCard(reputation.safeBrowsing),
+              const SizedBox(height: 10),
+
+              // VirusTotal
+              _buildVirusTotalCard(reputation.virusTotal),
+              const SizedBox(height: 12),
+
+              // Recommendation
+              _buildRecommendationBanner(reputation.recommendation, reputation.reputationScore),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildReputationScoreIndicator(int score) {
+    Color scoreColor;
+    if (score >= 70) {
+      scoreColor = AppColors.success;
+    } else if (score >= 50) {
+      scoreColor = AppColors.warning;
+    } else {
+      scoreColor = AppColors.danger;
+    }
+
+    return Row(
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scoreColor.withOpacity(0.15),
+            border: Border.all(color: scoreColor, width: 3),
+          ),
+          child: Center(
+            child: Text(
+              '$score',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: scoreColor,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Reputation Score',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+              Text(
+                score >= 70 ? 'Good standing' : score >= 50 ? 'Use with caution' : 'Poor reputation',
+                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSafeBrowsingCard(SafeBrowsingResult sb) {
+    IconData icon;
+    Color color;
+    String statusText;
+
+    if (sb.isSafe) {
+      icon = Icons.verified_user;
+      color = AppColors.success;
+      statusText = 'No threats detected';
+    } else if (sb.isUnsafe) {
+      icon = Icons.gpp_bad;
+      color = AppColors.danger;
+      statusText = sb.threatType ?? 'Threat detected';
+    } else if (sb.isDisabled) {
+      icon = Icons.shield_outlined;
+      color = Colors.grey;
+      statusText = 'Not configured';
+    } else {
+      icon = Icons.error_outline;
+      color = Colors.orange;
+      statusText = 'Check failed';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Google Safe Browsing',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                ),
+                Text(
+                  statusText,
+                  style: TextStyle(color: color, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            sb.isSafe ? Icons.check_circle : sb.isUnsafe ? Icons.cancel : Icons.remove_circle_outline,
+            color: color,
+            size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVirusTotalCard(VirusTotalResult vt) {
+    IconData icon;
+    Color color;
+    String statusText;
+
+    if (vt.isAnalyzed) {
+      if (vt.malicious > 0) {
+        icon = Icons.bug_report;
+        color = AppColors.danger;
+        statusText = '${vt.malicious} engine(s) flagged as malicious';
+      } else if (vt.suspicious > 0) {
+        icon = Icons.warning_amber;
+        color = AppColors.warning;
+        statusText = '${vt.suspicious} engine(s) flagged as suspicious';
+      } else {
+        icon = Icons.verified;
+        color = AppColors.success;
+        statusText = '${vt.harmless} engine(s) marked as safe';
+      }
+    } else if (vt.isNotFound) {
+      icon = Icons.search_off;
+      color = Colors.grey;
+      statusText = 'Not yet analyzed';
+    } else if (vt.isDisabled) {
+      icon = Icons.shield_outlined;
+      color = Colors.grey;
+      statusText = 'Not configured';
+    } else {
+      icon = Icons.error_outline;
+      color = Colors.orange;
+      statusText = 'Check failed';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'VirusTotal',
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                ),
+                Text(
+                  statusText,
+                  style: TextStyle(color: color, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          if (vt.isAnalyzed)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                '${vt.totalEngines} engines',
+                style: TextStyle(fontSize: 11, color: color, fontWeight: FontWeight.w500),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecommendationBanner(String recommendation, int score) {
+    Color bgColor;
+    Color textColor;
+    IconData icon;
+
+    if (score >= 70) {
+      bgColor = AppColors.success.withOpacity(0.1);
+      textColor = AppColors.success;
+      icon = Icons.check_circle_outline;
+    } else if (score >= 50) {
+      bgColor = AppColors.warning.withOpacity(0.1);
+      textColor = AppColors.warning;
+      icon = Icons.info_outline;
+    } else {
+      bgColor = AppColors.danger.withOpacity(0.1);
+      textColor = AppColors.danger;
+      icon = Icons.warning_amber_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: textColor, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              recommendation,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ],
       ),
     );
