@@ -15,11 +15,11 @@ class _ScanLoadingIndicatorState extends State<ScanLoadingIndicator>
   late AnimationController _pulseController;
 
   final List<String> _steps = [
-    'Đang quét...',
-    'Đang chuẩn bị...',
-    'Đang phân tích sâu...',
-    'Đang kiểm tra mối nguy...',
-    'Sắp hoàn thành...',
+    'Scanning...',
+    'Preparing...',
+    'Analyzing in-depth...',
+    'Checking for hazards...',
+    'Almost done...',
   ];
 
   @override

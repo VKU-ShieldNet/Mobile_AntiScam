@@ -98,4 +98,37 @@ class UrlScanService {
       throw Exception('Failed to load website preview');
     }
   }
+
+  /// Check URL reputation using third-party APIs (Google Safe Browsing, VirusTotal)
+  Future<ReputationResult> getReputationCheck(String url) async {
+    try {
+      debugPrint('📤 Sending POST request to $baseUrl/scan/website/reputation');
+
+      final response = await _dio.post(
+        '$baseUrl/scan/website/reputation',
+        data: {'url': url},
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+          receiveTimeout: const Duration(seconds: 20),
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        debugPrint('✅ Reputation check completed');
+        return ReputationResult.fromJson(response.data as Map<String, dynamic>);
+      } else {
+        throw Exception('Failed to check reputation: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      debugPrint('🌐 DioException in reputation check: ${e.message}');
+      if (e.response != null) {
+        throw Exception('Server error: ${e.response?.statusCode}');
+      } else {
+        throw Exception('Network error: ${e.message}');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error checking reputation: $e');
+      throw Exception('Failed to check URL reputation');
+    }
+  }
 }
